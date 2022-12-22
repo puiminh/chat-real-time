@@ -11,6 +11,24 @@ var chatDisplay = document.getElementById("chat");
 var currentRoom = "global";
 var myUsername = "";
 
+var hasImg = false;
+
+//Send message func
+
+function sendMsg(msg) {
+  if(msg) {
+    socket.emit("sendMessage", msg);
+    hasImg = false;
+  } 
+  
+  if (message.value) {
+    socket.emit("sendMessage", message.value);
+    message.value = "";
+  }
+}
+
+//handle message when send
+
 // Prompt for username on connecting to server
 socket.on("connect", function () {
   myUsername = prompt("Enter name: ");
@@ -19,8 +37,11 @@ socket.on("connect", function () {
 
 // Send message on button click
 sendMessageBtn.addEventListener("click", function () {
-  socket.emit("sendMessage", message.value);
-  message.value = "";
+    if (hasImg) {
+      uploadToFileBase();
+    } else {
+      sendMsg();
+    }
 });
 
 // Send message on enter key press
@@ -45,18 +66,34 @@ socket.on("updateChat", function (username, data) {
     console.log("Displaying announcement");
     chatDisplay.innerHTML += `<div class="announcement"><span>${data}</span></div>`;
   } else {
-    console.log("Displaying user message");
-    chatDisplay.innerHTML += `<div class="message_holder ${
-      username === myUsername ? "me" : ""
-    }">
-                                <div class="pic"></div>
-                                <div class="message_box">
-                                  <div id="message" class="message">
-                                    <span class="message_name">${username}</span>
-                                    <span class="message_text">${data}</span>
+    console.log("Displaying user message"); //me
+
+    if (checkURL(data)) {
+      chatDisplay.innerHTML +=  `<div class="message_holder ${
+        username === myUsername ? "me" : ""
+      }">
+                                  <div class="pic"></div>
+                                  <div class="message_box">
+                                    <div id="message" class="message">
+                                      <span class="message_name">${username}</span>
+                                      <img class="message_pic" src="${data}" alt="your image" />
+                                    </div>
                                   </div>
-                                </div>
-                              </div>`;
+                                </div>`;
+    } else {
+      chatDisplay.innerHTML += `<div class="message_holder ${
+        username === myUsername ? "me" : ""
+      }">
+                                  <div class="pic"></div>
+                                  <div class="message_box">
+                                    <div id="message" class="message">
+                                      <span class="message_name">${username}</span>
+                                      <span class="message_text">${data}</span>
+                                    </div>
+                                  </div>
+                                </div>`;
+    }
+
   }
 
   chatDisplay.scrollTop = chatDisplay.scrollHeight;
@@ -106,7 +143,6 @@ function changeRoom(room) {
 //Tai anh len:
 
 var file;
-var hasImg = false;
 
 document.getElementById("file").addEventListener('change', (e) => {
 	console.log(event);
@@ -119,8 +155,6 @@ document.getElementById("file").addEventListener('change', (e) => {
     }
 
     hasImg = true;
-
-    uploadToFileBase();
 })
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js";
@@ -194,9 +228,8 @@ function uploadToFileBase() {
     hasImg = false;
     output.style.display = "none";
     
-    // sendMsg(downloadURL);
-    msgText.value = "";
-    msgText.focus();
+    sendMsg(downloadURL);
+
     // chatBox.scrollTop = chatBox.scrollHeight;
   });
   }

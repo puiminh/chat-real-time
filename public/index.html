@@ -38,11 +38,13 @@
             <div id="chat" class="chat"></div>
 
             <div class="chat_input">
+              <img id="output" src="#" alt="your image" />
               <input
                 type="text"
                 id="messageInput"
                 placeholder="Enter message"
               />
+              <input type="file" id="file">
               <button id="send_message_btn" class="send_message_btn" id="send">
                 SEND
               </button>
@@ -64,6 +66,6 @@
       </div>
     </div>
 
-    <script src="app.js"></script>
+    <script type="module" src="app.js"></script>
   </body>
 </html>

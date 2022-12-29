@@ -10,7 +10,7 @@ var chatDisplay = document.getElementById("chat");
 
 var currentRoom = "global";
 var myUsername = "";
-
+var myUserId;
 var hasImg = false;
 
 //Send message func
@@ -32,7 +32,8 @@ function sendMsg(msg) {
 // Prompt for username on connecting to server
 socket.on("connect", function () {
   myUsername = prompt("Enter name: ");
-  socket.emit("createUser", myUsername);
+  myUserId = prompt("Enter id: ");
+  socket.emit("createUser", {"name": myUsername,"id": myUserId});
 });
 
 // Send message on button click
@@ -62,6 +63,7 @@ createRoomBtn.addEventListener("click", function () {
 });
 
 socket.on("updateChat", function (username, data) {
+  console.log("Event socket updateChat");
   if (username === "INFO") {
     console.log("Displaying announcement");
     chatDisplay.innerHTML += `<div class="announcement"><span>${data}</span></div>`;
@@ -99,13 +101,13 @@ socket.on("updateChat", function (username, data) {
   chatDisplay.scrollTop = chatDisplay.scrollHeight;
 });
 
-socket.on("updateUsers", function (usernames) {
+socket.on("updateUsers", function (userInfos) {
   userlist.innerHTML = "";
-  console.log("usernames returned from server", usernames);
-  for (var user in usernames) {
+  console.log("usernames returned from server", userInfos);
+  for (var userIndex in userInfos) {
     userlist.innerHTML += `<div class="user_card">
                               <div class="pic"></div>
-                              <span>${user}</span>
+                              <span>${userInfos[userIndex].name} - ${userInfos[userIndex].id}</span>
                             </div>`;
   }
 });

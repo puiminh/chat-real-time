@@ -11,53 +11,54 @@ const axios = require("axios");
 app.use(express.static("public"));
 
 // Global variables to hold all usernames and rooms created
-var usernames = {};
+var userInfos = {};
 var rooms = [
-  { name: "global", creator: "Anonymous" },
-  { name: "chess", creator: "Anonymous" },
+  { name: "global", creator: "Anonymous" }
 ];
 
 io.on("connection", function (socket) {
   console.log(`User connected to server.`);
 
-  socket.on("createUser", function (username) {
-    socket.username = username;
-    usernames[username] = username;
+  socket.on("createUser", function (userInfo) {
+    socket.name = userInfo.name;
+    socket.id = userInfo.id;
+    userInfos[userInfo.id] = userInfo;
     socket.currentRoom = "global";
     socket.join("global");
 
-    console.log(`User ${username} created on server successfully.`);
+    console.log(`User ${userInfo.name} created on server successfully.`);
 
     socket.emit("updateChat", "INFO", "You have joined global room");
     socket.broadcast
       .to("global")
-      .emit("updateChat", "INFO", username + " has joined global room");
-    io.sockets.emit("updateUsers", usernames);
+      .emit("updateChat", "INFO", userInfo + " has joined global room");
+    io.sockets.emit("updateUsers", userInfos);
     socket.emit("updateRooms", rooms, "global");
   });
 
   socket.on("sendMessage", function (data) {
-    io.sockets.to(socket.currentRoom).emit("updateChat", socket.username, data);
-    axios.post('https://chatrealtime-development.up.railway.app/api/chat', {
-      "id_message": 1,
-      "id_user": 1,
-      "name": 'aaaa',
-      "message": data,
-      "seen": false,
-      "to": 1,
-      "time": new Date(),
-    })
-    .then(function (response) {
-      console.log(response);
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
+    io.sockets.to(socket.currentRoom).emit("updateChat", socket.name, data);
+    console.log("sendMessage socket: ",data," - ",socket.name,": ",socket.currentRoom);
+    // axios.post('https://chatrealtime-development.up.railway.app/api/chat', {
+    //   "id_message": 1,
+    //   "id_user": 1,
+    //   "name": 'aaaa',
+    //   "message": data,
+    //   "seen": false,
+    //   "to": 1,
+    //   "time": new Date(),
+    // })
+    // .then(function (response) {
+    //   console.log(response);
+    // })
+    // .catch(function (error) {
+    //   console.log(error);
+    // });
   });
 
   socket.on("createRoom", function (room) {
     if (room != null) {
-      rooms.push({ name: room, creator: socket.username });
+      rooms.push({ name: room, creator: socket.name });
       io.sockets.emit("updateRooms", rooms, null);
     }
   });
@@ -65,7 +66,7 @@ io.on("connection", function (socket) {
   socket.on("updateRooms", function (room) {
     socket.broadcast
       .to(socket.currentRoom)
-      .emit("updateChat", "INFO", socket.username + " left room");
+      .emit("updateChat", "INFO", socket.name + " left room");
     socket.leave(socket.currentRoom);
     socket.currentRoom = room;
     socket.join(room);
@@ -75,18 +76,18 @@ io.on("connection", function (socket) {
       .emit(
         "updateChat",
         "INFO",
-        socket.username + " has joined " + room + " room"
+        socket.name + " has joined " + room + " room"
       );
   });
 
   socket.on("disconnect", function () {
-    console.log(`User ${socket.username} disconnected from server.`);
-    delete usernames[socket.username];
-    io.sockets.emit("updateUsers", usernames);
+    console.log(`User ${socket.name} disconnected from server.`);
+    delete userInfos[socket.id];
+    io.sockets.emit("updateUsers", userInfos);
     socket.broadcast.emit(
       "updateChat",
       "INFO",
-      socket.username + " has disconnected"
+      socket.name + " has disconnected"
     );
   });
 });

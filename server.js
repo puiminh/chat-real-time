@@ -13,7 +13,8 @@ app.use(express.static("public"));
 // Global variables to hold all usernames and rooms created
 var userInfos = {};
 var rooms = [
-  { name: "global", creator: "Anonymous" }
+  { name: "global", creator: "Anonymous" },
+  { name: "chess", creator: "Anonymous" }
 ];
 
 io.on("connection", function (socket) {
@@ -39,21 +40,21 @@ io.on("connection", function (socket) {
   socket.on("sendMessage", function (data) {
     io.sockets.to(socket.currentRoom).emit("updateChat", socket.name, data);
     console.log("sendMessage socket: ",data," - ",socket.name,": ",socket.currentRoom);
-    // axios.post('https://chatrealtime-development.up.railway.app/api/chat', {
-    //   "id_message": 1,
-    //   "id_user": 1,
-    //   "name": 'aaaa',
-    //   "message": data,
-    //   "seen": false,
-    //   "to": 1,
-    //   "time": new Date(),
-    // })
-    // .then(function (response) {
-    //   console.log(response);
-    // })
-    // .catch(function (error) {
-    //   console.log(error);
-    // });
+    axios.post('https://chatrealtime-development.up.railway.app/api/chat', {
+      "id_message": 1,
+      "id_user": 1,
+      "name": 'aaaa',
+      "message": data,
+      "seen": false,
+      "to": 1,
+      "time": new Date(),
+    })
+    .then(function (response) {
+      console.log(response);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
   });
 
   socket.on("createRoom", function (room) {

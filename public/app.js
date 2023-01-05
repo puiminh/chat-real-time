@@ -31,9 +31,10 @@ function sendMsg(msg) {
 
 // Prompt for username on connecting to server
 socket.on("connect", function () {
+  console.log("An socket connect: ",socket.id_user);
   myUsername = prompt("Enter name: ");
   myUserId = prompt("Enter id: ");
-  socket.emit("createUser", {"name": myUsername,"id": myUserId});
+  socket.emit("createUser", {"name": myUsername,"id_user": myUserId});
 });
 
 // Send message on button click
@@ -63,7 +64,7 @@ createRoomBtn.addEventListener("click", function () {
 });
 
 socket.on("updateChat", function (username, data) {
-  console.log("Event socket updateChat");
+  console.log("Event socket updateChat with",username, data);
   if (username === "INFO") {
     console.log("Displaying announcement");
     chatDisplay.innerHTML += `<div class="announcement"><span>${data}</span></div>`;
@@ -107,17 +108,16 @@ socket.on("updateUsers", function (userInfos) {
   for (var userIndex in userInfos) {
     userlist.innerHTML += `<div class="user_card">
                               <div class="pic"></div>
-                              <span>${userInfos[userIndex].name} - ${userInfos[userIndex].id}</span>
+                              <span>${userInfos[userIndex].name} - ${userInfos[userIndex].id_user}</span>
                             </div>`;
   }
 });
 
-socket.on("updateRooms", function (rooms, newRoom) {
+socket.on("updateRooms", function (rooms) {
   roomlist.innerHTML = "";
-
+  console.log("UpdateRoom: ",rooms)
   for (var index in rooms) {
-    roomlist.innerHTML += `<div class="room_card" id="${rooms[index].name}"
-                                onclick="changeRoom('${rooms[index].name}')">
+    roomlist.innerHTML += `<div class="room_card" id="${rooms[index].name}">
                                 <div class="room_item_content">
                                     <div class="pic"></div>
                                     <div class="roomInfo">
@@ -129,6 +129,7 @@ socket.on("updateRooms", function (rooms, newRoom) {
   }
 
   document.getElementById(currentRoom).classList.add("active_item");
+  bindFunction();
 });
 
 function changeRoom(room) {
@@ -138,6 +139,17 @@ function changeRoom(room) {
     currentRoom = room;
     document.getElementById(currentRoom).classList.add("active_item");
   }
+}
+
+function bindFunction() {
+  // onclick="changeRoom('${rooms[index].name}')"
+
+  [...document.getElementsByClassName("room_card")].forEach(element => {
+    element.addEventListener("click",()=>{
+      console.log(element.id);
+      changeRoom(element.id)
+    })
+  });
 }
 
 

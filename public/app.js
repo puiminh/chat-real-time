@@ -32,9 +32,15 @@ function sendMsg(msg) {
 // Prompt for username on connecting to server
 socket.on("connect", function () {
   console.log("An socket connect: ",socket.id_user);
-  myUsername = prompt("Enter name: ");
-  myUserId = prompt("Enter id: ");
+  // myUsername = prompt("Enter name: ");
+  // myUserId = prompt("Enter id: ");
+  myUsername = 'user'+Math.round(Date.now() / 1000);
+  myUserId = Math.round(Date.now() / 1000);
+
+  //Create User, Create Room (with that username)
+
   socket.emit("createUser", {"name": myUsername,"id_user": myUserId});
+
 });
 
 // Send message on button click
@@ -79,7 +85,7 @@ socket.on("updateChat", function (username, data) {
                                   <div class="message_box">
                                     <div id="message" class="message">
                                       <span class="message_name">${username}</span>
-                                      <img class="message_pic" src="${data}" alt="your image" />
+                                      <img class="message_pic" src="${data}" alt="your image" height="150px"/>
                                     </div>
                                   </div>
                                 </div>`;
@@ -113,9 +119,9 @@ socket.on("updateUsers", function (userInfos) {
   }
 });
 
-socket.on("updateRooms", function (rooms) {
+socket.on("updateRooms", function (rooms, newRoom) {
   roomlist.innerHTML = "";
-  console.log("UpdateRoom: ",rooms)
+  console.log("UpdateRoom: ",rooms,newRoom)
   for (var index in rooms) {
     roomlist.innerHTML += `<div class="room_card" id="${rooms[index].name}">
                                 <div class="room_item_content">
@@ -128,7 +134,11 @@ socket.on("updateRooms", function (rooms) {
                             </div>`;
   }
 
-  document.getElementById(currentRoom).classList.add("active_item");
+  if (newRoom) {
+    document.getElementById(newRoom).classList.add("active_item");
+  } else {
+    document.getElementById(myUsername).classList.add("active_item");
+  }
   bindFunction();
 });
 

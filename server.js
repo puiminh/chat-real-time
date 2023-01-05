@@ -14,28 +14,31 @@ app.use(express.static("public"));
 var userInfos = {};
 var rooms = [
   { name: "global", creator: "Anonymous" },
-  { name: "chess", creator: "Anonymous" }
 ];
 
 io.on("connection", function (socket) {
-  console.log(`User connected to server.`);
+  console.log(`User connected to server.`,socket.id);
 
     socket.on("createUser", function (userInfo) {
     socket.name = userInfo.name;
     socket.id_user = userInfo.id_user;
     userInfos[userInfo.id_user] = userInfo;
-    socket.currentRoom = "global";
-    socket.join("global");
-    console.log(socket.rooms);
+
+    socket.currentRoom = userInfo.name
+    socket.join(userInfo.name);
 
     console.log(`User ${userInfo.name} created on server successfully.`);
 
-    socket.emit("updateChat", "INFO", `You have joined ${socket.currentRoom} room`);
+    socket.emit("updateChat", "INFO", `You have joined ${socket.currentRoom} room`); //event cho ban than
     socket.broadcast
       .to("global")
-      .emit("updateChat", "INFO", userInfo.name + ` has joined  ${socket.currentRoom} room`);
+      .emit("updateChat", "INFO", userInfo.name + ` has joined  ${socket.currentRoom} room`); //event cho moi nguoi
+
     io.sockets.emit("updateUsers", userInfos);
-    socket.emit("updateRooms", rooms, "global");
+
+    rooms.push({ name: userInfo.name, creator: userInfo.name }); //make a room right way
+
+    io.sockets.emit("updateRooms", rooms, null); //update list room (For app) //update list room (For app)
   });
 
   socket.on("sendMessage", function (data) {
@@ -46,19 +49,16 @@ io.on("connection", function (socket) {
   socket.on("createRoom", function (room) {
     if (room != null) {
       rooms.push({ name: room, creator: socket.name });
-      io.sockets.emit("updateRooms", rooms);
+      io.sockets.emit("updateRooms", rooms, null);
     }
   });
 
   socket.on("updateRooms", function (room) {
     console.log("Join rooms: ",room);
-    socket.broadcast
-      .to(socket.currentRoom)
-      .emit("updateChat", "INFO", socket.name + " left room");
     socket.leave(socket.currentRoom);
     socket.currentRoom = room;
     socket.join(room.toString());
-    console.log(socket.rooms);
+    
     socket.emit("updateChat", "INFO", "You have joined " + room + " room");
     socket.broadcast
       .to(room)

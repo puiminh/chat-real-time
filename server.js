@@ -38,21 +38,21 @@ io.on("connection", function (socket) {
 
   socket.on("sendMessage", function (data) {
     io.sockets.to(socket.currentRoom).emit("updateChat", socket.username, data);
-    axios.post('https://chatrealtime-development.up.railway.app/api/chat', {
-      "id_message": 1,
-      "id_user": 1,
-      "name": 'aaaa',
-      "message": data,
-      "seen": false,
-      "to": 1,
-      "time": new Date(),
-    })
-    .then(function (response) {
-      console.log(response);
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
+    // axios.post('https://chatrealtime-development.up.railway.app/api/chat', {
+    //   "id_message": 1,
+    //   "id_user": 1,
+    //   "name": 'aaaa',
+    //   "message": data,
+    //   "seen": false,
+    //   "to": 1,
+    //   "time": new Date(),
+    // })
+    // .then(function (response) {
+    //   console.log(response);
+    // })
+    // .catch(function (error) {
+    //   console.log(error);
+    // });
   });
 
   socket.on("createRoom", function (room) {

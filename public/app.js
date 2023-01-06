@@ -7,7 +7,7 @@ var roomInput = document.getElementById("roomInput");
 var createRoomBtn = document.getElementById("room_add_icon_holder");
 var chatDisplay = document.getElementById("chat");
 
-var currentRoom = "global";
+var currentRoom = "0";
 var myUsername = "";
 var myUserId;
 var hasImg = false;
@@ -31,6 +31,46 @@ var hasImg = false;
 // }
 
 // setUpRoom();
+
+//Render message
+
+function renderAllMessage(messageArray) {
+  console.log(messageArray);
+
+  messageArray.forEach(({id, sender, id_room, message}) => {
+        console.log("Displaying user message"); //me
+    
+        if (checkURL(message)) {
+          chatDisplay.innerHTML +=  `<div class="message_holder ${
+            sender == myUserId ? "me" : ""
+          }">
+                                      <div class="pic"></div>
+                                      <div class="message_box">
+                                        <div id="message" class="message">
+                                          <span class="message_name">${sender}</span>
+                                          <img class="message_pic" src="${message}" alt="your image" height="150px"/>
+                                        </div>
+                                      </div>
+                                    </div>`;
+        } else {
+          chatDisplay.innerHTML += `<div class="message_holder ${
+            sender == myUserId ? "me" : ""
+          }">
+                                      <div class="pic"></div>
+                                      <div class="message_box">
+                                        <div id="message" class="message">
+                                          <span class="message_name">${sender}</span>
+                                          <span class="message_text">${message}</span>
+                                        </div>
+                                      </div>
+                                    </div>`;
+        }
+
+      
+  });
+  chatDisplay.scrollTop = chatDisplay.scrollHeight;
+}
+
 
 //Send message func
 function sendMsg(msg) {
@@ -59,6 +99,8 @@ socket.on("connect", function () {
 
   socket.emit("createUser", {"id_user": myUserId, "name": myUsername});
 
+  socket.emit("getMessageRoom", myUserId);
+
 });
 
 // Send message on button click
@@ -86,6 +128,10 @@ createRoomBtn.addEventListener("click", function () {
     roomInput.value = "";
   }
 });
+
+socket.on("returnMessageRoom", function (messageArray) {
+  renderAllMessage(messageArray);
+})
 
 socket.on("updateChat", function (id,username, data) {
   console.log("Event socket updateChat with",username, data);
@@ -151,6 +197,7 @@ socket.on("updateRooms", function (rooms, newRoom) {
                             </div>`;
   }
 
+
   if (newRoom) {
     document.getElementById(newRoom).classList.add("active_item");
   } else {
@@ -160,6 +207,7 @@ socket.on("updateRooms", function (rooms, newRoom) {
 });
 
 function changeRoom(room) {
+  console.log("Room change: ", currentRoom,'->',room);
   if (room != currentRoom) {
     socket.emit("updateRooms", room);
     document.getElementById(currentRoom).classList.remove("active_item");

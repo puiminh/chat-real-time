@@ -1,64 +1,146 @@
 {
-  "rooms" : [
+  "rooms": [
     {
-      "id" : 0,
-      "name" : "Global",
-      "messages": [
-      ]
+      "id": 0,
+      "name": "global",
+      "messages": []
     },
     {
-    "id" : 1,
-    "name" : "Minh",
-    "messages": [
-      {
+      "id": 1,
+      "name": "Minh",
+      "messages": []
+    },
+    {
+      "id": 2,
+      "name": "Linh",
+      "messages": []
+    },
+    {
+      "id": 3,
+      "name": "Quan",
+      "messages": []
+    },
+    {
+      "name": "user1673014788",
+      "id": 4,
+      "messages": []
+    },
+    {
+      "name": "user1673015324",
+      "id": 5,
+      "messages": []
+    },
+    {
+      "name": "user1673015369",
+      "id": 6,
+      "messages": []
+    },
+    {
+      "name": "user1673015526",
+      "id": 7,
+      "messages": []
+    },
+    {
+      "name": "user1673017105",
+      "id": 8,
+      "messages": []
+    },
+    {
+      "name": "user1673017121",
+      "id": 9,
+      "messages": []
+    },
+    {
+      "name": "user1673017724",
+      "id": 10,
+      "messages": []
+    },
+    {
+      "name": "user1673017732",
+      "id": 11,
+      "messages": []
+    },
+    {
+      "name": "user1673017754",
+      "id": 12,
+      "messages": []
+    },
+    {
+      "name": "user1673017771",
+      "id": 13,
+      "messages": []
+    },
+    {
+      "name": "user1673017974",
+      "id": 14,
+      "messages": []
+    },
+    {
+      "name": "user1673018327",
+      "id": 15,
+      "messages": []
+    }
+  ],
+  "messages": [
+    {
+      "id": 1,
+      "sender": 1,
+      "id_room": 1,
+      "message": "xin chao"
+    },
+    {
+      "id": 1673015557,
       "sender": 2,
-      "message": "Hello"
-      },
-      {
-        "sender": 1,
-        "message": "Hello You"
-      },
-      {
-        "sender": 2,
-        "message": "Hello There"
-      }
-    ]
+      "message": "Hello",
+      "id_room": 2
     },
     {
-      "id" : 2,
-      "name" : "Linh",
-      "messages": [
-        {
-        "sender": 2,
-        "message": "Hello"
-        },
-        {
-          "sender": 1,
-          "message": "Hello You"
-        },
-        {
-          "sender": 2,
-          "message": "Hello There"
-        }
-      ]
+      "id": 1673015558,
+      "sender": 2,
+      "message": "Hello dads",
+      "id_room": 2
     },
     {
-      "id" : 3,
-      "name" : "Quan",
-      "messages": [
-        {
-        "sender": 2,
-        "message": "Hello"
-        },
-        {
-          "sender": 1,
-          "message": "Hello You"
-        },
-        {
-          "sender": 2,
-          "message": "Hello There"
-        }
-      ]
+      "id": 1673015559,
+      "sender": 2,
+      "message": "Hello asd",
+      "id_room": 2
+    },
+    {
+      "id": 1673015551,
+      "sender": 2,
+      "message": "Hello asdsa",
+      "id_room": 2
+    },
+    {
+      "id": 1673017766,
+      "sender": 2,
+      "message": "asdasdqwdq",
+      "id_room": 2
+    },
+    {
+      "id": 1673017775,
+      "sender": 2,
+      "message": "Day la 1 tin nhan sieu moi",
+      "id_room": 2
+    },
+    {
+      "id": 1673017990,
+      "sender": 2,
+      "message": "Alo",
+      "id_room": 2
+    },
+    {
+      "id": 1673018346,
+      "sender": 3,
+      "message": "Hello",
+      "id_room": 2
+    },
+    {
+      "id": 1673018354,
+      "sender": 3,
+      "message": "Toi ben kia sang",
+      "id_room": 2
     }
   ]
 }

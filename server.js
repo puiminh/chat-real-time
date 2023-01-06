@@ -16,12 +16,20 @@ app.use(express.static("public"));
 const jsonServer = require('json-server')
 const serverDB = jsonServer.create()
 const router = jsonServer.router('db.json')
+const middlewares = jsonServer.defaults();
+const db = require('./db.json');
+
+serverDB.use(middlewares);
+serverDB.use(jsonServer.bodyParser);
 
 serverDB.use((req, res, next) => {
+  console.log("Get req", req.params, req.body);
   res.header('Access-Control-Allow-Origin', 'https://5000-puiminh-chatrealtime-76faaa8tus5.ws-us81.gitpod.io')
   res.header('Access-Control-Allow-Headers', '*')
   next()
 })
+
+
 serverDB.use(router)
 
 serverDB.listen(3000, () => {
@@ -40,7 +48,7 @@ setUpRoom();
 function setUpRoom() {
   axios.get('http://localhost:3000/rooms')   //GET THE ROOM
   .then(function (response) {
-    console.log(response.data);
+    console.log("data from http://localhost:3000/rooms: ",response.data);
     rooms = response.data
   })
   .catch(function (error) {
@@ -48,6 +56,50 @@ function setUpRoom() {
   })
   // .then(function () {
   // });   
+}
+
+const createRoom = async (data) => {
+  try {
+    const response = await axios.post(
+      "http://localhost:3000/rooms", {
+        name: data.name,
+        id: parseInt(data.id),
+        messages: [],
+      }
+    )
+    console.log(response.data)
+    return response.data
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+const sendMessage = async (data) => {
+  console.log("sending...",`http://localhost:3000/messages`,data);
+  try {
+    const response = await axios.post(
+      `http://localhost:3000/messages`,{
+        id: Math.round(Date.now() / 1000), 
+        sender: data.id_user,
+        message: data.message,
+        id_room: data.id_room
+      }
+    )    
+    return response;
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+const getAllMessage = async (id_room) => {
+  try {
+    const response = await axios.get(`http://localhost:3000/messages?id_room=${id_room}`);
+
+    console.log("data from ",`http://localhost:3000/messages?id_room=${id_room}`,response.data);
+    return response.data
+  } catch (error) {
+    // Handle errors
+  }
 }
 
 io.on("connection", function (socket) {
@@ -76,11 +128,14 @@ io.on("connection", function (socket) {
       socket.join(userInfo.id_user+'');
   
       console.log(`User ${userInfo.name} - ${userInfo.id_user} created on server successfully.`);
-
-      rooms.push({ name: userInfo.name, id: userInfo.id_user }); //make a room right way
+    
+      //make a room right way
   
-      io.sockets.emit("updateRooms", rooms, null); //update list room (For app) //update list room (For app)
-
+      createRoom({ name: userInfo.name, id: userInfo.id_user }).then((res)=>{
+        rooms.push(res);
+        console.log("PUSH in to rooms array: ",res," Now:",rooms);
+        io.sockets.emit("updateRooms", rooms, null); //update list room (For app) //update list room (For app)
+      })
     }
 
       socket.emit("updateChat",-1, "INFO", `You have joined ${socket.currentRoom} room`); //event cho ban than
@@ -89,15 +144,19 @@ io.on("connection", function (socket) {
         .emit("updateChat", -1,"INFO", userInfo.name + ` has joined  ${socket.currentRoom} room`); //event cho moi nguoi
   
       // io.sockets.emit("updateUsers", userInfos);
-  
-
-    
-
-
- 
   });
 
+  socket.on("getMessageRoom", function (id_room) {
+    getAllMessage(id_room).then((res)=>{
+      console.log("Emit ->",socket.id_user ,": ",res);
+      socket.emit("returnMessageRoom", res);
+    })
+  })
+
   socket.on("sendMessage", function (data) {
+    sendMessage({id_room: parseInt(socket.currentRoom), id_user: socket.id_user, message: data}).then((res)=>{
+      console.log("res from socket emit part: ",res.status);
+    });
     io.sockets.to(socket.currentRoom+'').emit("updateChat", socket.id_user, socket.name, data);
     console.log("sendMessage socket: ",data," - ",socket.name,socket.id_user,": ",socket.currentRoom,"socket rooms: ",socket.rooms);
 
@@ -111,12 +170,15 @@ io.on("connection", function (socket) {
   });
 
   socket.on("updateRooms", function (room) {
-    console.log("Join rooms: ",room);
+    console.log("Join rooms: ",room,"from: ",socket.currentRoom);
     socket.leave(socket.currentRoom+'');
     socket.currentRoom = room+'';
     socket.join(room+'');
     
     socket.emit("updateChat", -1,"INFO", "You have joined " + room + " room");
+    getAllMessage(room).then((res)=>{
+      socket.emit("returnMessageRoom",res);
+    })
     socket.broadcast
       .to(room+'')
       .emit(

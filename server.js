@@ -143,8 +143,6 @@ io.on("connection", function (socket) {
       socket.broadcast
         .to("global")
         .emit("updateChat", -1,"INFO", userInfo.name + ` has joined  ${socket.currentRoom} room`); //event cho moi nguoi
-  
-      // io.sockets.emit("updateUsers", userInfos);
   });
 
   socket.on("getMessageRoom", function (id_room) {
@@ -193,7 +191,6 @@ io.on("connection", function (socket) {
   socket.on("disconnect", function () {
     console.log(`User ${socket.name} disconnected from server.`);
     delete userInfos[socket.id_user];
-    io.sockets.emit("updateUsers", userInfos);
     socket.broadcast.emit(
       "updateChat",
       "INFO",

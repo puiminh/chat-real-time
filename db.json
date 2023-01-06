@@ -123,6 +123,13 @@
       "sender": 3,
       "message": "Nhan gi day",
       "id_room": 2
+    },
+    {
+      "id": 1673021230,
+      "name": "Linh",
+      "sender": 2,
+      "message": "Ma",
+      "id_room": 2
     }
   ]
 }

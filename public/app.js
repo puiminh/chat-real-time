@@ -1,11 +1,11 @@
 var socket = io();
-var userlist = document.getElementById("active_users_list");
 var roomlist = document.getElementById("active_rooms_list");
 var message = document.getElementById("messageInput");
 var sendMessageBtn = document.getElementById("send_message_btn");
 var roomInput = document.getElementById("roomInput");
 var createRoomBtn = document.getElementById("room_add_icon_holder");
 var chatDisplay = document.getElementById("chat");
+var right_sidebar = document.getElementById("right_sidebar");
 
 var currentRoom = "0";
 var myUsername = "";
@@ -172,16 +172,6 @@ socket.on("updateChat", function (id,username, data) {
   chatDisplay.scrollTop = chatDisplay.scrollHeight;
 });
 
-socket.on("updateUsers", function (userInfos) {
-  userlist.innerHTML = "";
-  console.log("usernames returned from server", userInfos);
-  for (var userIndex in userInfos) {
-    userlist.innerHTML += `<div class="user_card">
-                              <div class="pic"></div>
-                              <span>${userInfos[userIndex].name} - ${userInfos[userIndex].id_user}</span>
-                            </div>`;
-  }
-});
 
 socket.on("updateRooms", function (rooms, newRoom) {
   roomlist.innerHTML = "";

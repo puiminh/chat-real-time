@@ -1,5 +1,4 @@
 var socket = io();
-
 var userlist = document.getElementById("active_users_list");
 var roomlist = document.getElementById("active_rooms_list");
 var message = document.getElementById("messageInput");
@@ -13,8 +12,27 @@ var myUsername = "";
 var myUserId;
 var hasImg = false;
 
-//Send message func
+// axios.defaults.withCredentials = true; //CORS
 
+// function setUpRoom() {
+//   axios.get('https://3000-puiminh-chatrealtime-76faaa8tus5.ws-us81.gitpod.io/rooms',  {
+//     headers: {
+//     }
+//    })
+//   .then(function (response) {
+//     console.log(response);
+//   })
+//   .catch(function (error) {
+//     console.log(error);
+//   })
+//   .then(function (response) {
+//     return response;
+//   });   
+// }
+
+// setUpRoom();
+
+//Send message func
 function sendMsg(msg) {
   if(msg) {
     socket.emit("sendMessage", msg);
@@ -33,13 +51,13 @@ function sendMsg(msg) {
 socket.on("connect", function () {
   console.log("An socket connect: ",socket.id_user);
   // myUsername = prompt("Enter name: ");
-  // myUserId = prompt("Enter id: ");
+  myUserId = prompt("Enter id: ");
   myUsername = 'user'+Math.round(Date.now() / 1000);
-  myUserId = Math.round(Date.now() / 1000);
+  // myUserId = Math.round(Date.now() / 1000);
 
   //Create User, Create Room (with that username)
 
-  socket.emit("createUser", {"name": myUsername,"id_user": myUserId});
+  socket.emit("createUser", {"id_user": myUserId, "name": myUsername});
 
 });
 
@@ -69,7 +87,7 @@ createRoomBtn.addEventListener("click", function () {
   }
 });
 
-socket.on("updateChat", function (username, data) {
+socket.on("updateChat", function (id,username, data) {
   console.log("Event socket updateChat with",username, data);
   if (username === "INFO") {
     console.log("Displaying announcement");
@@ -79,7 +97,7 @@ socket.on("updateChat", function (username, data) {
 
     if (checkURL(data)) {
       chatDisplay.innerHTML +=  `<div class="message_holder ${
-        username === myUsername ? "me" : ""
+        id == myUserId ? "me" : ""
       }">
                                   <div class="pic"></div>
                                   <div class="message_box">
@@ -91,7 +109,7 @@ socket.on("updateChat", function (username, data) {
                                 </div>`;
     } else {
       chatDisplay.innerHTML += `<div class="message_holder ${
-        username === myUsername ? "me" : ""
+        id == myUserId ? "me" : ""
       }">
                                   <div class="pic"></div>
                                   <div class="message_box">
@@ -123,12 +141,11 @@ socket.on("updateRooms", function (rooms, newRoom) {
   roomlist.innerHTML = "";
   console.log("UpdateRoom: ",rooms,newRoom)
   for (var index in rooms) {
-    roomlist.innerHTML += `<div class="room_card" id="${rooms[index].name}">
+    roomlist.innerHTML += `<div class="room_card" id="${rooms[index].id}">
                                 <div class="room_item_content">
                                     <div class="pic"></div>
                                     <div class="roomInfo">
-                                    <span class="room_name">#${rooms[index].name}</span>
-                                    <span class="room_author">${rooms[index].creator}</span>
+                                    <span class="room_name">${rooms[index].name}</span>
                                     </div>
                                 </div>
                             </div>`;
@@ -137,7 +154,7 @@ socket.on("updateRooms", function (rooms, newRoom) {
   if (newRoom) {
     document.getElementById(newRoom).classList.add("active_item");
   } else {
-    document.getElementById(myUsername).classList.add("active_item");
+    document.getElementById(myUserId).classList.add("active_item");
   }
   bindFunction();
 });

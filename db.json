@@ -1,0 +1,64 @@
+{
+  "rooms" : [
+    {
+      "id" : 0,
+      "name" : "Global",
+      "messages": [
+      ]
+    },
+    {
+    "id" : 1,
+    "name" : "Minh",
+    "messages": [
+      {
+      "sender": 2,
+      "message": "Hello"
+      },
+      {
+        "sender": 1,
+        "message": "Hello You"
+      },
+      {
+        "sender": 2,
+        "message": "Hello There"
+      }
+    ]
+    },
+    {
+      "id" : 2,
+      "name" : "Linh",
+      "messages": [
+        {
+        "sender": 2,
+        "message": "Hello"
+        },
+        {
+          "sender": 1,
+          "message": "Hello You"
+        },
+        {
+          "sender": 2,
+          "message": "Hello There"
+        }
+      ]
+    },
+    {
+      "id" : 3,
+      "name" : "Quan",
+      "messages": [
+        {
+        "sender": 2,
+        "message": "Hello"
+        },
+        {
+          "sender": 1,
+          "message": "Hello You"
+        },
+        {
+          "sender": 2,
+          "message": "Hello There"
+        }
+      ]
+    }
+  ]
+}

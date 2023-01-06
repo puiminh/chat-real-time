@@ -7,63 +7,121 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 const axios = require("axios");
+const { response } = require("express");
 
 app.use(express.static("public"));
+
+
+// JSON SERVER
+const jsonServer = require('json-server')
+const serverDB = jsonServer.create()
+const router = jsonServer.router('db.json')
+
+serverDB.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://5000-puiminh-chatrealtime-76faaa8tus5.ws-us81.gitpod.io')
+  res.header('Access-Control-Allow-Headers', '*')
+  next()
+})
+serverDB.use(router)
+
+serverDB.listen(3000, () => {
+  console.log('JSON Server is running')
+})
 
 // Global variables to hold all name and rooms created
 var userInfos = {};
 var rooms = [
-  { name: "global", creator: "Anonymous" },
 ];
+
+setUpRoom();
+
+
+// Setup rooms
+function setUpRoom() {
+  axios.get('http://localhost:3000/rooms')   //GET THE ROOM
+  .then(function (response) {
+    console.log(response.data);
+    rooms = response.data
+  })
+  .catch(function (error) {
+    console.log(error);
+  })
+  // .then(function () {
+  // });   
+}
 
 io.on("connection", function (socket) {
   console.log(`User connected to server.`,socket.id);
 
     socket.on("createUser", function (userInfo) {
-    socket.name = userInfo.name;
-    socket.id_user = userInfo.id_user;
-    userInfos[userInfo.id_user] = userInfo;
+    const found = rooms.findIndex((e)=>e.id == userInfo.id_user);
+    if (found != -1) { //OLD USER
 
-    socket.currentRoom = userInfo.name
-    socket.join(userInfo.name);
+      console.log(`User ${userInfo.name} has been in data-chat with id: ${rooms[found].id}.`);
 
-    console.log(`User ${userInfo.name} created on server successfully.`);
+      socket.name = rooms[found].name;
+      socket.id_user = rooms[found].id;
+      userInfos[rooms[found].id] = userInfo;
+      socket.currentRoom = rooms[found].id +'';
 
-    socket.emit("updateChat", "INFO", `You have joined ${socket.currentRoom} room`); //event cho ban than
-    socket.broadcast
-      .to("global")
-      .emit("updateChat", "INFO", userInfo.name + ` has joined  ${socket.currentRoom} room`); //event cho moi nguoi
+      socket.join(rooms[found].id +'');
+      io.sockets.emit("updateRooms", rooms, null); //update list room (For app) //update list room (For app)
+      
+    } else { //NEW USER => CREATE
+      socket.name = userInfo.name;
+      socket.id_user = userInfo.id_user;
+      userInfos[userInfo.id_user] = userInfo;
+  
+      socket.currentRoom = userInfo.id_user+'';
+      socket.join(userInfo.id_user+'');
+  
+      console.log(`User ${userInfo.name} - ${userInfo.id_user} created on server successfully.`);
 
-    io.sockets.emit("updateUsers", userInfos);
+      rooms.push({ name: userInfo.name, id: userInfo.id_user }); //make a room right way
+  
+      io.sockets.emit("updateRooms", rooms, null); //update list room (For app) //update list room (For app)
 
-    rooms.push({ name: userInfo.name, creator: userInfo.name }); //make a room right way
+    }
 
-    io.sockets.emit("updateRooms", rooms, null); //update list room (For app) //update list room (For app)
+      socket.emit("updateChat",-1, "INFO", `You have joined ${socket.currentRoom} room`); //event cho ban than
+      socket.broadcast
+        .to("global")
+        .emit("updateChat", -1,"INFO", userInfo.name + ` has joined  ${socket.currentRoom} room`); //event cho moi nguoi
+  
+      // io.sockets.emit("updateUsers", userInfos);
+  
+
+    
+
+
+ 
   });
 
   socket.on("sendMessage", function (data) {
-    io.sockets.to(socket.currentRoom).emit("updateChat", socket.name, data);
-    console.log("sendMessage socket: ",data," - ",socket.name,": ",socket.currentRoom);
+    io.sockets.to(socket.currentRoom+'').emit("updateChat", socket.id_user, socket.name, data);
+    console.log("sendMessage socket: ",data," - ",socket.name,socket.id_user,": ",socket.currentRoom,"socket rooms: ",socket.rooms);
+
   });
 
   socket.on("createRoom", function (room) {
     if (room != null) {
-      rooms.push({ name: room, creator: socket.name });
+      rooms.push({ name: room });
       io.sockets.emit("updateRooms", rooms, null);
     }
   });
 
   socket.on("updateRooms", function (room) {
     console.log("Join rooms: ",room);
-    socket.leave(socket.currentRoom);
-    socket.currentRoom = room;
-    socket.join(room.toString());
+    socket.leave(socket.currentRoom+'');
+    socket.currentRoom = room+'';
+    socket.join(room+'');
     
-    socket.emit("updateChat", "INFO", "You have joined " + room + " room");
+    socket.emit("updateChat", -1,"INFO", "You have joined " + room + " room");
     socket.broadcast
-      .to(room)
+      .to(room+'')
       .emit(
         "updateChat",
+        -1,
         "INFO",
         socket.name + " has joined " + room + " room"
       );

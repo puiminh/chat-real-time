@@ -80,6 +80,7 @@ const sendMessage = async (data) => {
     const response = await axios.post(
       `http://localhost:3000/messages`,{
         id: Math.round(Date.now() / 1000), 
+        name: data.name,
         sender: data.id_user,
         message: data.message,
         id_room: data.id_room
@@ -154,7 +155,7 @@ io.on("connection", function (socket) {
   })
 
   socket.on("sendMessage", function (data) {
-    sendMessage({id_room: parseInt(socket.currentRoom), id_user: socket.id_user, message: data}).then((res)=>{
+    sendMessage({id_room: parseInt(socket.currentRoom), id_user: socket.id_user, message: data, name: socket.name}).then((res)=>{
       console.log("res from socket emit part: ",res.status);
     });
     io.sockets.to(socket.currentRoom+'').emit("updateChat", socket.id_user, socket.name, data);

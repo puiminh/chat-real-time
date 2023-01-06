@@ -37,7 +37,7 @@ var hasImg = false;
 function renderAllMessage(messageArray) {
   console.log(messageArray);
 
-  messageArray.forEach(({id, sender, id_room, message}) => {
+  messageArray.forEach(({id, sender, id_room, message, name}) => {
         console.log("Displaying user message"); //me
     
         if (checkURL(message)) {
@@ -47,7 +47,7 @@ function renderAllMessage(messageArray) {
                                       <div class="pic"></div>
                                       <div class="message_box">
                                         <div id="message" class="message">
-                                          <span class="message_name">${sender}</span>
+                                          <span class="message_name">${name}</span>
                                           <img class="message_pic" src="${message}" alt="your image" height="150px"/>
                                         </div>
                                       </div>
@@ -59,7 +59,7 @@ function renderAllMessage(messageArray) {
                                       <div class="pic"></div>
                                       <div class="message_box">
                                         <div id="message" class="message">
-                                          <span class="message_name">${sender}</span>
+                                          <span class="message_name">${name}</span>
                                           <span class="message_text">${message}</span>
                                         </div>
                                       </div>

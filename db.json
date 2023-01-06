@@ -83,63 +83,45 @@
   ],
   "messages": [
     {
-      "id": 1,
-      "sender": 1,
-      "id_room": 1,
-      "message": "xin chao"
+      "id": 1673020008,
+      "name": "Quan",
+      "sender": 3,
+      "message": "Chao ",
+      "id_room": 3
     },
     {
-      "id": 1673015557,
+      "id": 1673020016,
+      "name": "Linh",
       "sender": 2,
       "message": "Hello",
-      "id_room": 2
+      "id_room": 3
     },
     {
-      "id": 1673015558,
-      "sender": 2,
-      "message": "Hello dads",
-      "id_room": 2
-    },
-    {
-      "id": 1673015559,
-      "sender": 2,
-      "message": "Hello asd",
-      "id_room": 2
-    },
-    {
-      "id": 1673015551,
-      "sender": 2,
-      "message": "Hello asdsa",
-      "id_room": 2
-    },
-    {
-      "id": 1673017766,
-      "sender": 2,
-      "message": "asdasdqwdq",
-      "id_room": 2
-    },
-    {
-      "id": 1673017775,
-      "sender": 2,
-      "message": "Day la 1 tin nhan sieu moi",
-      "id_room": 2
-    },
-    {
-      "id": 1673017990,
-      "sender": 2,
-      "message": "Alo",
-      "id_room": 2
-    },
-    {
-      "id": 1673018346,
+      "id": 1673020020,
+      "name": "Quan",
       "sender": 3,
-      "message": "Hello",
+      "message": "Chao Linh",
+      "id_room": 3
+    },
+    {
+      "id": 1673020027,
+      "name": "Linh",
+      "sender": 2,
+      "message": "Bye nha",
+      "id_room": 3
+    },
+    {
+      "id": 1673020034,
+      "name": "Linh",
+      "sender": 2,
+      "message": "adasdadsadssda",
       "id_room": 2
     },
     {
-      "id": 1673018354,
+      "id": 1673020038,
+      "name": "Quan",
       "sender": 3,
-      "message": "Toi ben kia sang",
+      "message": "Nhan gi day",
       "id_room": 2
     }
   ]

@@ -226,3 +226,7 @@ io.on("connection", function (socket) {
 server.listen(5000, function () {
   console.log("Listening to port 5000.");
 });
+
+app.get('/rooms', (req, res) => {
+  res.send(db.rooms)
+})

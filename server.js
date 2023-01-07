@@ -141,7 +141,6 @@ io.on("connection", function (socket) {
 
       socket.emit("updateChat",-1, "INFO", `You have joined ${socket.currentRoom} room`); //event cho ban than
       socket.broadcast.emit("online",socket.currentRoom); //event cho ban than
-      
 
       socket.broadcast
         .to("global")
@@ -149,7 +148,20 @@ io.on("connection", function (socket) {
 
       if (socket.id_user != rooms[0].id) { //Not a admin
         socket.emit("notAdminUser");
-      }  
+      } else { //La admin, gui danh sach nhung nguoi dang online (tim kiem socket)
+        io.fetchSockets().then((socketsConnect)=>{
+          let connectingSocket = socketsConnect.map((e)=>{
+            if (e.connected) {
+              return e.id_user
+            } else {
+              return false
+            }
+          })
+
+          socket.emit("nowConnectingUser", connectingSocket);
+          console.log(connectingSocket);
+        });
+      }
   });
 
   socket.on("getMessageRoom", function (id_room) {
@@ -200,6 +212,7 @@ io.on("connection", function (socket) {
     delete userInfos[socket.id_user];
     socket.broadcast.emit(
       "updateChat",
+      -1,
       "INFO",
       socket.name + " has disconnected"
     );

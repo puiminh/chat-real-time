@@ -27,7 +27,7 @@ serverDB.use((req, res, next) => {
   
   res.header('Access-Control-Allow-Origin', 'https://5000-puiminh-chatrealtime-76faaa8tus5.ws-us81.gitpod.io')
   res.header('Access-Control-Allow-Headers', '*')
-  console.log(res);
+  // console.log(res);
   next()
 })
 
@@ -50,7 +50,7 @@ setUpRoom();
 function setUpRoom() {
   axios.get('http://localhost:3000/rooms')   //GET THE ROOM
   .then(function (response) {
-    console.log("data from http://localhost:3000/rooms: ",response.data);
+    console.log("data from http://localhost:3000/rooms: ",response);
     rooms = response.data
   })
   .catch(function (error) {

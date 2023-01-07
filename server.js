@@ -24,8 +24,10 @@ serverDB.use(jsonServer.bodyParser);
 
 serverDB.use((req, res, next) => {
   console.log("Get req", req.params, req.body);
+  
   res.header('Access-Control-Allow-Origin', 'https://5000-puiminh-chatrealtime-76faaa8tus5.ws-us81.gitpod.io')
   res.header('Access-Control-Allow-Headers', '*')
+  console.log(res);
   next()
 })
 
@@ -105,7 +107,6 @@ const getAllMessage = async (id_room) => {
 
 io.on("connection", function (socket) {
   console.log(`User connected to server.`,socket.id);
-
     socket.on("createUser", function (userInfo) {
     const found = rooms.findIndex((e)=>e.id == userInfo.id_user);
     if (found != -1) { //OLD USER

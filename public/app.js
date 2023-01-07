@@ -112,7 +112,8 @@ socket.on("notAdminUser", function (params) {
 socket.on("nowConnectingUser", function (ids) {
   console.log("List connecting: ",ids);
   ids.forEach(id => {
-    if (id) {
+    console.log(document.getElementById(id));
+    if (id!=null && document.getElementById(id)) {
       document.getElementById(id).querySelector(".status").classList.add("online");
       document.getElementById(id).querySelector(".statusText").textContent = "online";
     }
@@ -199,19 +200,19 @@ socket.on("updateChat", function (id,username, data) {
 });
 
 
-socket.on("updateRooms", function (rooms, newRoom) {
+socket.on("updateRooms", function (rooms, newRoom, onlineUsers) {
 
-  let newUpdateRoomArray = rooms.map((room)=>{
-    let found = originalRooms.find((e)=>e.id == room.id)
-    if (found) {
-      return false;
-    } else {
-      return true;
-    }
-  })
+  // let newUpdateRoomArray = rooms.map((room)=>{
+  //   let found = originalRooms.find((e)=>e.id == room.id)
+  //   if (found) {
+  //     return false;
+  //   } else {
+  //     return true;
+  //   }
+  // })
 
-  console.log("UpdateRoom: ",rooms,newRoom,"compared new: ",newUpdateRoomArray)
-  for (var index in newUpdateRoomArray) {
+  // console.log("UpdateRoom: ",rooms,newRoom,"compared new: ",newUpdateRoomArray)
+  for (var index in rooms) {
     roomlist.innerHTML +=
     `<li class="rooms" id='${rooms[index].id}'>
       <img src="${rooms[index].avatar ? rooms[index].avatar : 'https://static2.yan.vn/YanNews/2167221/202102/facebook-cap-nhat-avatar-doi-voi-tai-khoan-khong-su-dung-anh-dai-dien-e4abd14d.jpg'}" alt="">
@@ -223,8 +224,7 @@ socket.on("updateRooms", function (rooms, newRoom) {
         </h3>
       </div>
     </li>`;
-
-    originalRooms = rooms;
+    // originalRooms = rooms;
   }
 
 

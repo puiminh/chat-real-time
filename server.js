@@ -149,19 +149,20 @@ io.on("connection", function (socket) {
       if (socket.id_user != rooms[0].id) { //Not a admin
         socket.emit("notAdminUser");
       } else { //La admin, gui danh sach nhung nguoi dang online (tim kiem socket)
-        io.fetchSockets().then((socketsConnect)=>{
-          let connectingSocket = socketsConnect.map((e)=>{
-            if (e.connected) {
-              return e.id_user
-            } else {
-              return false
-            }
-          })
-
-          socket.emit("nowConnectingUser", connectingSocket);
-          console.log(connectingSocket);
-        });
       }
+      
+      io.fetchSockets().then((socketsConnect)=>{
+        let connectingSocket = socketsConnect.map((e)=>{
+          if (e.connected) {
+            return e.id_user
+          } else {
+            return false
+          }
+        })
+
+        socket.emit("nowConnectingUser", connectingSocket);
+        console.log(connectingSocket);
+      });
   });
 
   socket.on("getMessageRoom", function (id_room) {
@@ -180,12 +181,12 @@ io.on("connection", function (socket) {
 
   });
 
-  socket.on("createRoom", function (room) {
-    if (room != null) {
-      rooms.push({ name: room });
-      io.sockets.emit("updateRooms", rooms, null);
-    }
-  });
+  // socket.on("createRoom", function (room) {
+  //   if (room != null) {
+  //     rooms.push({ name: room });
+  //     io.sockets.emit("updateRooms", rooms, null);
+  //   }
+  // });
 
   socket.on("updateRooms", function (room) {
     console.log("Join rooms: ",room,"from: ",socket.currentRoom);

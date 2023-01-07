@@ -140,9 +140,16 @@ io.on("connection", function (socket) {
     }
 
       socket.emit("updateChat",-1, "INFO", `You have joined ${socket.currentRoom} room`); //event cho ban than
+      socket.broadcast.emit("online",socket.currentRoom); //event cho ban than
+      
+
       socket.broadcast
         .to("global")
         .emit("updateChat", -1,"INFO", userInfo.name + ` has joined  ${socket.currentRoom} room`); //event cho moi nguoi
+
+      if (socket.id_user != rooms[0].id) { //Not a admin
+        socket.emit("notAdminUser");
+      }  
   });
 
   socket.on("getMessageRoom", function (id_room) {
@@ -196,6 +203,8 @@ io.on("connection", function (socket) {
       "INFO",
       socket.name + " has disconnected"
     );
+
+    socket.broadcast.emit("offline",socket.currentRoom);
   });
 });
 

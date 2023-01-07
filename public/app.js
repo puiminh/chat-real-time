@@ -11,6 +11,7 @@ var currentRoom = "0";
 var myUsername = "";
 var myUserId;
 var hasImg = false;
+var originalRooms = [];
 
 // axios.defaults.withCredentials = true; //CORS
 
@@ -39,7 +40,7 @@ function renderAllMessage(messageArray) {
 
   messageArray.forEach(({id, sender, id_room, message, name}) => {
         console.log("Displaying user message"); //me
-    
+        chatDisplay.innerHTML= "";
         if (checkURL(message)) {
           chatDisplay.innerHTML +=  `<div class="message_holder ${
             sender == myUserId ? "me" : ""
@@ -102,6 +103,20 @@ socket.on("connect", function () {
   socket.emit("getMessageRoom", myUserId);
 
 });
+
+socket.on("notAdminUser", function (params) {
+  right_sidebar.style.display = "none";
+})
+
+socket.on("online", function (room) {
+  document.getElementById(room).querySelector(".status").classList.add("online");
+  document.getElementById(room).querySelector(".statusText").textContent = "online";
+})
+
+socket.on("offline", function (room) {
+  document.getElementById(room).querySelector(".status").classList.remove("online");
+  document.getElementById(room).querySelector(".statusText").textContent = "offline";
+})
 
 // Send message on button click
 sendMessageBtn.addEventListener("click", function () {
@@ -174,17 +189,31 @@ socket.on("updateChat", function (id,username, data) {
 
 
 socket.on("updateRooms", function (rooms, newRoom) {
-  roomlist.innerHTML = "";
-  console.log("UpdateRoom: ",rooms,newRoom)
-  for (var index in rooms) {
-    roomlist.innerHTML += `<div class="room_card" id="${rooms[index].id}">
-                                <div class="room_item_content">
-                                    <div class="pic"></div>
-                                    <div class="roomInfo">
-                                    <span class="room_name">${rooms[index].name}</span>
-                                    </div>
-                                </div>
-                            </div>`;
+
+  let newUpdateRoomArray = rooms.map((room)=>{
+    let found = originalRooms.find((e)=>e.id == room.id)
+    if (found) {
+      return false;
+    } else {
+      return true;
+    }
+  })
+
+  console.log("UpdateRoom: ",rooms,newRoom,"compared new: ",newUpdateRoomArray)
+  for (var index in newUpdateRoomArray) {
+    roomlist.innerHTML +=
+    `<li class="rooms" id='${rooms[index].id}'>
+      <img src="${rooms[index].avatar ? rooms[index].avatar : 'https://static2.yan.vn/YanNews/2167221/202102/facebook-cap-nhat-avatar-doi-voi-tai-khoan-khong-su-dung-anh-dai-dien-e4abd14d.jpg'}" alt="">
+      <div>
+        <h2>${rooms[index].name}</h2>
+        <h3>
+          <span class="status orange"></span>
+          <span class="statusText"> offline </span>
+        </h3>
+      </div>
+    </li>`;
+
+    originalRooms = rooms;
   }
 
 
@@ -209,7 +238,7 @@ function changeRoom(room) {
 function bindFunction() {
   // onclick="changeRoom('${rooms[index].name}')"
 
-  [...document.getElementsByClassName("room_card")].forEach(element => {
+  [...document.getElementsByClassName("rooms")].forEach(element => {
     element.addEventListener("click",()=>{
       console.log(element.id);
       changeRoom(element.id)

@@ -2,8 +2,8 @@ var socket = io();
 var roomlist = document.getElementById("active_rooms_list");
 var message = document.getElementById("messageInput");
 var sendMessageBtn = document.getElementById("send_message_btn");
-var roomInput = document.getElementById("roomInput");
-var createRoomBtn = document.getElementById("room_add_icon_holder");
+// var roomInput = document.getElementById("roomInput");
+// var createRoomBtn = document.getElementById("room_add_icon_holder");
 var chatDisplay = document.getElementById("chat");
 var right_sidebar = document.getElementById("right_sidebar");
 
@@ -36,11 +36,11 @@ var originalRooms = [];
 //Render message
 
 function renderAllMessage(messageArray) {
+  chatDisplay.innerHTML= "";
   console.log(messageArray);
 
   messageArray.forEach(({id, sender, id_room, message, name}) => {
         console.log("Displaying user message"); //me
-        chatDisplay.innerHTML= "";
         if (checkURL(message)) {
           chatDisplay.innerHTML +=  `<div class="message_holder ${
             sender == myUserId ? "me" : ""
@@ -108,6 +108,14 @@ socket.on("notAdminUser", function (params) {
   right_sidebar.style.display = "none";
 })
 
+socket.on("nowConnectingUser", function (ids) {
+  console.log("List connecting: ",ids);
+  ids.forEach(id => {
+    document.getElementById(id).querySelector(".status").classList.add("online");
+    document.getElementById(id).querySelector(".statusText").textContent = "online";
+  });
+})
+
 socket.on("online", function (room) {
   document.getElementById(room).querySelector(".status").classList.add("online");
   document.getElementById(room).querySelector(".statusText").textContent = "online";
@@ -135,14 +143,14 @@ message.addEventListener("keyup", function (event) {
 });
 
 // Create new room on button click
-createRoomBtn.addEventListener("click", function () {
-  // socket.emit("createRoom", prompt("Enter new room: "));
-  let roomName = roomInput.value.trim();
-  if (roomName !== "") {
-    socket.emit("createRoom", roomName);
-    roomInput.value = "";
-  }
-});
+// createRoomBtn.addEventListener("click", function () {
+//   // socket.emit("createRoom", prompt("Enter new room: "));
+//   let roomName = roomInput.value.trim();
+//   if (roomName !== "") {
+//     socket.emit("createRoom", roomName);
+//     roomInput.value = "";
+//   }
+// });
 
 socket.on("returnMessageRoom", function (messageArray) {
   renderAllMessage(messageArray);

@@ -50,7 +50,7 @@ setUpRoom();
 function setUpRoom() {
   axios.get('http://localhost:3000/rooms')   //GET THE ROOM
   .then(function (response) {
-    console.log("data from http://localhost:3000/rooms: ",response);
+    console.log("data from http://localhost:3000/rooms: ",response.data);
     rooms = response.data
   })
   .catch(function (error) {
@@ -229,4 +229,8 @@ server.listen(5000, function () {
 
 app.get('/rooms', (req, res) => {
   res.send(db.rooms)
+})
+
+app.get('/messages', (req, res) => {
+  res.send(db.messages)
 })

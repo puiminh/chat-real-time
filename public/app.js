@@ -93,7 +93,7 @@ function sendMsg(msg) {
 socket.on("connect", function () {
   console.log("An socket connect: ",socket.id_user);
   // myUsername = prompt("Enter name: ");
-  myUserId = prompt("Enter id: ");
+  myUserId = prompt("Enter id (PLS NUMBER): ");
   myUsername = 'user'+Math.round(Date.now() / 1000);
   // myUserId = Math.round(Date.now() / 1000);
 
@@ -121,13 +121,17 @@ socket.on("nowConnectingUser", function (ids) {
 })
 
 socket.on("online", function (room) {
-  document.getElementById(room).querySelector(".status").classList.add("online");
-  document.getElementById(room).querySelector(".statusText").textContent = "online";
+  if (document.getElementById(room)) {
+    document.getElementById(room).querySelector(".status").classList.add("online");
+    document.getElementById(room).querySelector(".statusText").textContent = "online";
+  }
 })
 
 socket.on("offline", function (room) {
+  if (document.getElementById(room)) {
   document.getElementById(room).querySelector(".status").classList.remove("online");
   document.getElementById(room).querySelector(".statusText").textContent = "offline";
+  }
 })
 
 // Send message on button click
@@ -212,6 +216,7 @@ socket.on("updateRooms", function (rooms, newRoom, onlineUsers) {
   // })
 
   // console.log("UpdateRoom: ",rooms,newRoom,"compared new: ",newUpdateRoomArray)
+  roomlist.innerHTML ="";
   for (var index in rooms) {
     roomlist.innerHTML +=
     `<li class="rooms" id='${rooms[index].id}'>

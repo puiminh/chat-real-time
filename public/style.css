@@ -576,3 +576,12 @@ li h3{
 	margin-right:0;
 	margin-left:7px;
 }
+
+.newmess {
+  font-weight: 900;
+  color: #6fbced;
+}
+
+.newmessStatus {
+  background-color:#6fbced!important;
+}

@@ -19,12 +19,11 @@ const router = jsonServer.router('db.json')
 const middlewares = jsonServer.defaults();
 const db = require('./db.json');
 
+
 serverDB.use(middlewares);
 serverDB.use(jsonServer.bodyParser);
 
-serverDB.use((req, res, next) => {
-  console.log("Get req", req.params, req.body);
-  
+serverDB.use((req, res, next) => {  
   res.header('Access-Control-Allow-Origin', 'https://5000-puiminh-chatrealtime-76faaa8tus5.ws-us81.gitpod.io')
   res.header('Access-Control-Allow-Headers', '*')
   // console.log(res);
@@ -43,30 +42,33 @@ var userInfos = {};
 var rooms = [
 ];
 
-setUpRoom();
 
 
-// Setup rooms
-function setUpRoom() {
-  axios.get('http://localhost:3000/rooms')   //GET THE ROOM
+
+const setUpRoom = async () => {
+  try {
+    const response = await axios.get('http://localhost:3000/rooms');
+    console.log("room getting: ", response.data);
+    return response.data
+  } catch (error) {
+    // Handle errors
+  }
+}
+
+axios.get('http://localhost:3000/rooms')
   .then(function (response) {
-    console.log("data from http://localhost:3000/rooms: ",response.data);
     rooms = response.data
   })
   .catch(function (error) {
     console.log(error);
-  })
-  // .then(function () {
-  // });   
-}
-
+  });
 const createRoom = async (data) => {
   try {
     const response = await axios.post(
       "http://localhost:3000/rooms", {
         name: data.name,
         id: parseInt(data.id),
-        messages: [],
+        newMess: false,
       }
     )
     console.log(response.data)
@@ -94,11 +96,25 @@ const sendMessage = async (data) => {
   }
 }
 
+const roomNewMessStatus = async (data) => { //actually seen all message of a room
+  console.log("putting...",`http://localhost:3000/rooms/${data.id}`,data);
+  try {
+    const response = await axios.put(
+      `http://localhost:3000/rooms/${data.id}`,{
+        newMess: data.status,
+        name: data.name
+      }
+    )
+    console.log(response.data);    
+    return response.data;
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 const getAllMessage = async (id_room) => {
   try {
     const response = await axios.get(`http://localhost:3000/messages?id_room=${id_room}`);
-
-    console.log("data from ",`http://localhost:3000/messages?id_room=${id_room}`,response.data);
     return response.data
   } catch (error) {
     // Handle errors
@@ -119,7 +135,15 @@ io.on("connection", function (socket) {
       socket.currentRoom = rooms[found].id +'';
 
       socket.join(rooms[found].id +'');
-      io.sockets.emit("updateRooms", rooms, null); //update list room (For app) //update list room (For app)
+
+      setUpRoom().then((res)=>{
+        rooms = res;
+        console.log("Room emit sending: ", rooms);
+        io.sockets.emit("updateRooms", rooms, null); //update list room (For app) //update list room (For app)
+      });
+
+
+
       
     } else { //NEW USER => CREATE
       socket.name = userInfo.name;
@@ -140,12 +164,12 @@ io.on("connection", function (socket) {
       })
     }
 
-      socket.emit("updateChat",-1, "INFO", `You have joined ${socket.currentRoom} room`); //event cho ban than
-      socket.broadcast.emit("online",socket.currentRoom); //event cho ban than
+      // socket.emit("updateChat",-1, "INFO", `You have joined ${socket.currentRoom} room`); //event cho ban than
+      socket.broadcast.emit("online",socket.currentRoom);
 
-      socket.broadcast
-        .to("global")
-        .emit("updateChat", -1,"INFO", userInfo.name + ` has joined  ${socket.currentRoom} room`); //event cho moi nguoi
+      // socket.broadcast
+      //   .to("global")
+      //   .emit("updateChat", -1,"INFO", userInfo.name + ` has joined  ${socket.currentRoom} room`); //event cho moi nguoi
 
       if (socket.id_user != rooms[0].id) { //Not a admin
         socket.emit("notAdminUser");
@@ -160,15 +184,14 @@ io.on("connection", function (socket) {
             return false
           }
         })
-
         socket.emit("nowConnectingUser", connectingSocket);
+        socket.broadcast.emit("nowConnectingUser", connectingSocket);
         console.log(connectingSocket);
       });
   });
 
   socket.on("getMessageRoom", function (id_room) {
     getAllMessage(id_room).then((res)=>{
-      console.log("Emit ->",socket.id_user ,": ",res);
       socket.emit("returnMessageRoom", res);
     })
   })
@@ -178,46 +201,47 @@ io.on("connection", function (socket) {
       console.log("res from socket emit part: ",res.status);
     });
     io.sockets.to(socket.currentRoom+'').emit("updateChat", socket.id_user, socket.name, data);
+    socket.broadcast.emit("newMess",socket.currentRoom);
+
+    roomNewMessStatus({id: socket.currentRoom, status: true, name: socket.name})
+
     console.log("sendMessage socket: ",data," - ",socket.name,socket.id_user,": ",socket.currentRoom,"socket rooms: ",socket.rooms);
 
   });
 
-  // socket.on("createRoom", function (room) {
-  //   if (room != null) {
-  //     rooms.push({ name: room });
-  //     io.sockets.emit("updateRooms", rooms, null);
-  //   }
-  // });
-
-  socket.on("updateRooms", function (room) {
+  socket.on("updateRooms", function (room, name) {
     console.log("Join rooms: ",room,"from: ",socket.currentRoom);
     socket.leave(socket.currentRoom+'');
     socket.currentRoom = room+'';
     socket.join(room+'');
+
+    //SEEN all the mess
+
+    roomNewMessStatus({id: room, status: false, name: name});
     
-    socket.emit("updateChat", -1,"INFO", "You have joined " + room + " room");
+    // socket.emit("updateChat", -1,"INFO", "You have joined " + room + " room");
     getAllMessage(room).then((res)=>{
       socket.emit("returnMessageRoom",res);
     })
-    socket.broadcast
-      .to(room+'')
-      .emit(
-        "updateChat",
-        -1,
-        "INFO",
-        socket.name + " has joined " + room + " room"
-      );
+    // socket.broadcast
+    //   .to(room+'')
+    //   .emit(
+    //     "updateChat",
+    //     -1,
+    //     "INFO",
+    //     socket.name + " has joined " + room + " room"
+    //   );
   });
 
   socket.on("disconnect", function () {
     console.log(`User ${socket.name} disconnected from server.`);
     delete userInfos[socket.id_user];
-    socket.broadcast.emit(
-      "updateChat",
-      -1,
-      "INFO",
-      socket.name + " has disconnected"
-    );
+    // socket.broadcast.emit(
+    //   "updateChat",
+    //   -1,
+    //   "INFO",
+    //   socket.name + " has disconnected"
+    // );
 
     socket.broadcast.emit("offline",socket.currentRoom);
   });

@@ -13,7 +13,7 @@ var myUsername = "";
 var myUserId;
 var hasImg = false;
 var originalRooms = [];
-
+var listConnecting = [];
 // axios.defaults.withCredentials = true; //CORS
 
 // function setUpRoom() {
@@ -33,6 +33,29 @@ var originalRooms = [];
 // }
 
 // setUpRoom();
+
+
+//WAITING ELEMENT 
+
+function waitForElm(selector) {
+  return new Promise(resolve => {
+      if (document.querySelector(selector)) {
+          return resolve(document.querySelector(selector));
+      }
+
+      const observer = new MutationObserver(mutations => {
+          if (document.querySelector(selector)) {
+              resolve(document.querySelector(selector));
+              observer.disconnect();
+          }
+      });
+
+      observer.observe(document.body, {
+          childList: true,
+          subtree: true
+      });
+  });
+}
 
 //Render message
 
@@ -111,14 +134,21 @@ socket.on("notAdminUser", function (params) {
 
 socket.on("nowConnectingUser", function (ids) {
   console.log("List connecting: ",ids);
-  ids.forEach(id => {
-    console.log(document.getElementById(id));
-    if (id!=null && document.getElementById(id)) {
-      document.getElementById(id).querySelector(".status").classList.add("online");
-      document.getElementById(id).querySelector(".statusText").textContent = "online";
-    }
-  });
+  
+  listConnecting = ids;
 })
+
+function renderConnecting() {
+  listConnecting.forEach(id => {
+    console.log("List connecting element:",id,document.getElementById(id+''));
+    if (document.getElementById(id+'')) {
+      document.getElementById(id+'').querySelector(".status").classList.add("online");
+      document.getElementById(id+'').querySelector(".statusText").textContent = "online";
+    } else {
+      console.error("Something wrong with online status");
+    }
+  }); 
+}
 
 socket.on("online", function (room) {
   if (document.getElementById(room)) {
@@ -133,6 +163,20 @@ socket.on("offline", function (room) {
   document.getElementById(room).querySelector(".statusText").textContent = "offline";
   }
 })
+
+socket.on("newMess", function (room) {
+  if (document.getElementById(room)) {
+    document.getElementById(room).querySelector(".username").classList.add("newmess");
+    document.getElementById(room).querySelector(".status").classList.add("newmessStatus");
+    }
+})
+
+function clearNewMess(room) {
+  if (document.getElementById(room)) {
+    document.getElementById(room).querySelector(".username").classList.remove("newmess");
+    document.getElementById(room).querySelector(".status").classList.remove("newmessStatus");
+    }
+}
 
 // Send message on button click
 sendMessageBtn.addEventListener("click", function () {
@@ -204,34 +248,26 @@ socket.on("updateChat", function (id,username, data) {
 });
 
 
-socket.on("updateRooms", function (rooms, newRoom, onlineUsers) {
-
-  // let newUpdateRoomArray = rooms.map((room)=>{
-  //   let found = originalRooms.find((e)=>e.id == room.id)
-  //   if (found) {
-  //     return false;
-  //   } else {
-  //     return true;
-  //   }
-  // })
-
-  // console.log("UpdateRoom: ",rooms,newRoom,"compared new: ",newUpdateRoomArray)
+socket.on("updateRooms", function (rooms, newRoom) {
+  console.log(rooms);
   roomlist.innerHTML ="";
   for (var index in rooms) {
     roomlist.innerHTML +=
     `<li class="rooms" id='${rooms[index].id}'>
       <img src="${rooms[index].avatar ? rooms[index].avatar : 'https://static2.yan.vn/YanNews/2167221/202102/facebook-cap-nhat-avatar-doi-voi-tai-khoan-khong-su-dung-anh-dai-dien-e4abd14d.jpg'}" alt="">
       <div>
-        <h2>${rooms[index].name}</h2>
+        <h2 class="username ${rooms[index].newMess? "newmess" :""}  ">${rooms[index].name}</h2>
         <h3>
-          <span class="status orange"></span>
+          <span class="status orange  ${rooms[index].newMess? "newmessStatus" :""} "></span>
           <span class="statusText"> offline </span>
         </h3>
       </div>
     </li>`;
     // originalRooms = rooms;
+    // ${rooms[index].newMess ? "newmess" : ''}">
   }
 
+  originalRooms = rooms;
 
   if (newRoom) {
     document.getElementById(newRoom).classList.add("active_item");
@@ -239,16 +275,19 @@ socket.on("updateRooms", function (rooms, newRoom, onlineUsers) {
     document.getElementById(myUserId).classList.add("active_item");
   }
   bindFunction();
+  renderConnecting();
 });
 
 function changeRoom(room) {
-  console.log("Room change: ", currentRoom,'->',room);
+  console.log("Room change: ", currentRoom,'->',room, originalRooms[room]);
   if (room != currentRoom) {
-    socket.emit("updateRooms", room);
+    socket.emit("updateRooms", room, originalRooms[room].name);
     document.getElementById(currentRoom).classList.remove("active_item");
     currentRoom = room;
     document.getElementById(currentRoom).classList.add("active_item");
   }
+
+  clearNewMess(room);
 }
 
 function bindFunction() {

@@ -115,11 +115,11 @@ function sendMsg(msg) {
 // Prompt for username on connecting to server
 socket.on("connect", function () {
   console.log("An socket connect: ",socket.id_user);
-  // myUsername = prompt("Enter name: ");
+  
   myUserId = prompt("Enter id (PLS NUMBER): ");
-  myUsername = 'user'+Math.round(Date.now() / 1000);
+  // myUsername = 'user'+Math.round(Date.now() / 1000);
   // myUserId = Math.round(Date.now() / 1000);
-
+  myUsername = prompt("Enter name: ");
   //Create User, Create Room (with that username)
 
   socket.emit("createUser", {"id_user": myUserId, "name": myUsername});

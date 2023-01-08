@@ -6,7 +6,7 @@
       "newMess": false
     },
     {
-      "newMess": false,
+      "newMess": true,
       "name": "Minh",
       "id": 1
     },
@@ -16,7 +16,7 @@
       "id": 2
     },
     {
-      "newMess": true,
+      "newMess": false,
       "name": "Quân",
       "id": 3
     },
@@ -103,6 +103,11 @@
     {
       "name": "user1673175238",
       "id": 20,
+      "newMess": false
+    },
+    {
+      "name": "postman",
+      "id": 98,
       "newMess": false
     }
   ],
@@ -398,6 +403,12 @@
       "sender": 3,
       "message": "asdd",
       "id_room": 3
+    },
+    {
+      "id": 1673177568,
+      "name": "postman",
+      "sender": 98,
+      "id_room": "1"
     }
   ],
   "roomstatuss": [

@@ -1,14 +1,15 @@
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
-
+const bp = require('body-parser')
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
 const axios = require("axios");
 const { response } = require("express");
-
+app.use(bp.json())
+app.use(bp.urlencoded({ extended: true }))
 app.use(express.static("public"));
 
 
@@ -252,9 +253,54 @@ server.listen(5000, function () {
 });
 
 app.get('/rooms', (req, res) => {
-  res.send(db.rooms)
+
+  let seen = req.query.seen;
+  console.log(seen);
+
+  if (seen=='yes') {
+
+    let seenRoom = db.rooms.filter((e)=>e.newMess)
+    console.log(seenRoom);
+    res.send(seenRoom)
+  } else if (seen=='no') {
+    let seenRoom = db.rooms.filter((e)=>!e.newMess)
+    console.log(seenRoom);
+    res.send(seenRoom)
+  } else {
+    res.send(db.rooms)
+  }
 })
 
 app.get('/messages', (req, res) => {
   res.send(db.messages)
 })
+
+app.get('/rooms/:id', (req, res) => {
+
+  console.log(req.params['id']); 
+  let id = req.params['id']
+  res.send(db.rooms[id])
+})
+
+
+app.post('/rooms/:id', (req, res) => {
+  console.log(req.params['id']); 
+  let id_room = req.params['id'];
+  let id_user = req.body['id_user'];
+  let data = req.body['message'];
+  let name = req.body['name'];
+   sendMessage({id_room: id_room, id_user: id_user, message: data, name: name}).then((response)=>{
+    res.send(response);
+   })
+})
+
+app.post('/rooms', (req, res) => {
+  console.log(req.body);
+  let id_user = req.body.id_user;
+  let name = req.body.name;
+  createRoom({ name: name, id: id_user }).then((response)=>{
+    res.send(response);
+   })
+})
+
+// createRoom({ name: userInfo.name, id: userInfo.id_user })

@@ -16,7 +16,7 @@
       "id": 2
     },
     {
-      "newMess": false,
+      "newMess": true,
       "name": "Quân",
       "id": 3
     },
@@ -409,6 +409,20 @@
       "name": "postman",
       "sender": 98,
       "id_room": "1"
+    },
+    {
+      "name": "Quân",
+      "sender": 3,
+      "message": "Gui hinh anh",
+      "id_room": 3,
+      "id": 1673177569
+    },
+    {
+      "name": "Quân",
+      "sender": 3,
+      "message": "https://firebasestorage.googleapis.com/v0/b/uploadfiletofirebase-ae63f.appspot.com/o/images%2Ffontsearch.png?alt=media&token=0d712db1-be09-446d-b692-9ae9e260e65b",
+      "id_room": 3,
+      "id": 1673177570
     }
   ],
   "roomstatuss": [

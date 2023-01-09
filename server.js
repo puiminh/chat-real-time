@@ -84,7 +84,6 @@ const sendMessage = async (data) => {
   try {
     const response = await axios.post(
       `http://localhost:3000/messages`,{
-        id: Math.round(Date.now() / 1000), 
         name: data.name,
         sender: data.id_user,
         message: data.message,

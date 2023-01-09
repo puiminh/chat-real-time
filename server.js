@@ -56,6 +56,38 @@ const setUpRoom = async () => {
   }
 }
 
+serialize = function(obj) {
+  var str = [];
+  for (var p in obj)
+    if (obj.hasOwnProperty(p)) {
+      str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+    }
+  return str.join("&");
+}
+
+const getAllRoom = async (params) => {
+  let query = serialize(params)
+  console.log(query);
+
+  try {
+    const response = await axios.get(`http://localhost:3000/rooms?${query}`);
+    console.log(`http://localhost:3000/rooms?${query}`);
+    return response.data
+  } catch (error) {
+    
+  }
+}
+
+const getRoom = async (id) => {
+  try {
+    const response = await axios.get(`http://localhost:3000/rooms/${id}`);
+    console.log(`http://localhost:3000/rooms/${id}`);
+    return response.data
+  } catch (error) {
+    
+  }
+}
+
 axios.get('http://localhost:3000/rooms')
   .then(function (response) {
     rooms = response.data
@@ -253,32 +285,40 @@ server.listen(5000, function () {
 
 app.get('/rooms', (req, res) => {
 
-  let seen = req.query.seen;
+  let seen = req.query;
   console.log(seen);
+  getAllRoom(seen).then((res2)=>{
+    res.send(res2)
+  })
+  // if (seen=='yes') {
 
-  if (seen=='yes') {
+  //   let seenRoom = db.rooms.filter((e)=>e.newMess)    
 
-    let seenRoom = db.rooms.filter((e)=>e.newMess)
-    console.log(seenRoom);
-    res.send(seenRoom)
-  } else if (seen=='no') {
-    let seenRoom = db.rooms.filter((e)=>!e.newMess)
-    console.log(seenRoom);
-    res.send(seenRoom)
-  } else {
-    res.send(db.rooms)
-  }
+  //   console.log(seenRoom);
+  //   res.send(seenRoom)
+  // } else if (seen=='no') {
+  //   let seenRoom = db.rooms.filter((e)=>!e.newMess)
+  //   console.log(seenRoom);
+  //   res.send(seenRoom)
+  // } else {
+  //   res.send(db.rooms)
+  // }
 })
 
 app.get('/messages', (req, res) => {
-  res.send(db.messages)
+
+  getAllMessage().then((res)=>{
+    res.send(res)
+  })
 })
 
 app.get('/rooms/:id', (req, res) => {
 
   console.log(req.params['id']); 
-  let id = req.params['id']
-  res.send(db.rooms[id])
+  let id = req.params['id'];
+  getRoom(id).then((res2)=>{
+    res.send(res2);
+  })
 })
 
 

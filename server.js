@@ -306,9 +306,8 @@ app.get('/rooms', (req, res) => {
 })
 
 app.get('/messages', (req, res) => {
-
-  getAllMessage().then((res)=>{
-    res.send(res)
+  getAllMessage().then((res2)=>{
+    res.send(res2)
   })
 })
 

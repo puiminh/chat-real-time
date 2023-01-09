@@ -100,7 +100,6 @@ const createRoom = async (data) => {
     const response = await axios.post(
       "http://localhost:3000/rooms", {
         name: data.name,
-        id: parseInt(data.id),
         newMess: false,
       }
     )
@@ -122,7 +121,7 @@ const sendMessage = async (data) => {
         id_room: data.id_room
       }
     )    
-    return response;
+    return response.data;
   } catch (error) {
     console.log(error)
   }
@@ -343,9 +342,8 @@ app.post('/rooms/:id', (req, res) => {
 
 app.post('/rooms', (req, res) => {
   console.log(req.body);
-  let id_user = req.body.id_user;
   let name = req.body.name;
-  createRoom({ name: name, id: id_user }).then((response)=>{
+  createRoom({ name: name}).then((response)=>{
     res.send(response);
    })
 })

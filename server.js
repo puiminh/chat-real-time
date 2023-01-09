@@ -153,6 +153,15 @@ const getAllMessage = async (id_room) => {
   }
 }
 
+const getAllMessageF = async (id_room) => {
+  try {
+    const response = await axios.get(`http://localhost:3000/messages`);
+    return response.data
+  } catch (error) {
+    // Handle errors
+  }
+}
+
 io.on("connection", function (socket) {
   console.log(`User connected to server.`,socket.id);
     socket.on("createUser", function (userInfo) {
@@ -306,7 +315,7 @@ app.get('/rooms', (req, res) => {
 })
 
 app.get('/messages', (req, res) => {
-  getAllMessage().then((res2)=>{
+  getAllMessageF().then((res2)=>{
     res.send(res2)
   })
 })

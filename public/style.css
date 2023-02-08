@@ -589,6 +589,20 @@ li h3{
 
 /* CLIENT */
 
+.chat_app.hidden {
+  display: none;
+}
+
+.show_button_wrap {
+  position: absolute;
+  bottom: 10%;
+  right: 5%;
+}
+
+.show_button_wrap.hidden {
+  display: none;
+}
+
 #notifi {
   position: absolute;
 }
@@ -604,3 +618,27 @@ li h3{
   background-color: inherit!important;
 }
 
+.show_button {
+  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+  border: 1rem solid #6fbced;
+  border-radius: 100%;
+  display: flex;
+  justify-content: center;
+  justify-items: center;
+  padding: 4px;
+  cursor: pointer;
+  position: relative;
+}
+
+.new_mess_button_status {
+  position: absolute;
+    top: -30%;
+    left: -20%;
+    width: 20px;
+    height: 20px;
+  background-color: red!important;
+}
+
+.new_mess_button_status.hidden {
+  display: none;
+}

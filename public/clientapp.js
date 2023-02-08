@@ -1,12 +1,12 @@
 var socket = io();
-var roomlist = document.getElementById("active_rooms_list");
 var message = document.getElementById("messageInput");
 var sendMessageBtn = document.getElementById("send_message_btn");
-// var roomInput = document.getElementById("roomInput");
-// var createRoomBtn = document.getElementById("room_add_icon_holder");
-
 var chatDisplay = document.getElementById("chat");
-var right_sidebar = document.getElementById("right_sidebar");
+var showButton = document.getElementById("show_button");
+var showButtonWrap = document.getElementById("show_button_wrap");
+var chat_app = document.getElementById("chat_app");
+var new_mess_button_status = document.getElementById("new_mess_button_status");
+
 
 var currentRoom = "0";
 var myUsername = "";
@@ -33,6 +33,11 @@ var listConnecting = [];
 // }
 
 // setUpRoom();
+
+showButton.addEventListener("click", function (evt) {
+  chat_app.classList.toggle("hidden");
+  new_mess_button_status.classList.add("hidden");
+})
 
 //Render message
 
@@ -135,6 +140,13 @@ socket.on("offline", function (room) {
   }
 })
 
+function clearNewMess(room) {
+  if (document.getElementById(room)) {
+    document.getElementById(room).querySelector(".username").classList.remove("newmess");
+    document.getElementById(room).querySelector(".status").classList.remove("newmessStatus");
+    }
+}
+
 // Send message on button click
 sendMessageBtn.addEventListener("click", function () {
     if (hasImg) {
@@ -167,6 +179,11 @@ socket.on("returnMessageRoom", function (messageArray) {
 
 socket.on("updateChat", function (id,username, data) {
   console.log("Event socket updateChat with",username, data);
+
+  // Noti
+
+  new_mess_button_status.classList.remove('hidden')  
+
   if (username === "INFO") {
     console.log("Displaying announcement");
     chatDisplay.innerHTML += `<div class="announcement"><span>${data}</span></div>`;

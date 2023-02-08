@@ -10,7 +10,7 @@ var right_sidebar = document.getElementById("right_sidebar");
 
 var currentRoom = "0";
 var myUsername = "";
-var myUserId = 0;
+var myUserId;
 var hasImg = false;
 var originalRooms = [];
 var listConnecting = [];
@@ -90,59 +90,50 @@ function sendMsg(msg) {
 // Prompt for username on connecting to server
 socket.on("connect", function () {
   console.log("An socket connect: ",socket.id_user);
-  socket.emit("createUser", {"id_user": 0, "name": "Admin"});
-  socket.emit("getMessageRoom", 0);
-});
+  
+  // myUserId = prompt("Enter id (PLS NUMBER): ");
+  // myUsername = 'user'+Math.round(Date.now() / 1000);
+  myUserId = parseInt(window.location.pathname.split("/").pop()); 
+  //Create User, Create Room (with that username)
 
-socket.on("notAdminUser", function (params) {
-  right_sidebar.style.display = "none";
-})
+  // -------------- GET NAME FROM API --------------//
+  //MOCKING...
+  myUsername = 'user'+Math.round(Date.now() / 1000);
+
+  socket.emit("createUser", {"id_user": myUserId, "name": myUsername});
+
+  socket.emit("getMessageRoom", myUserId);
+
+});
 
 socket.on("nowConnectingUser", function (ids) {
   console.log("List connecting: ",ids);
-  
   listConnecting = ids;
+  renderConnecting();
 })
 
 function renderConnecting() {
   listConnecting.forEach(id => {
-    console.log("List connecting element:",id,document.getElementById(id+''));
-    if (document.getElementById(id+'')) {
-      document.getElementById(id+'').querySelector(".status").classList.add("online");
-      document.getElementById(id+'').querySelector(".statusText").textContent = "online";
-    } else {
-      console.error("Something wrong with online status");
+    if (id == 0) {
+      document.getElementById('notifi_status').textContent = "online";
+      document.getElementById('notifi_text').classList.add('online');
     }
   }); 
 }
 
 socket.on("online", function (room) {
-  if (document.getElementById(room)) {
-    document.getElementById(room).querySelector(".status").classList.add("online");
-    document.getElementById(room).querySelector(".statusText").textContent = "online";
+  if (room==0) {
+    document.getElementById('notifi_status').textContent = "online";
+    document.getElementById('notifi_text').classList.add('online');
   }
 })
 
 socket.on("offline", function (room) {
-  if (document.getElementById(room)) {
-  document.getElementById(room).querySelector(".status").classList.remove("online");
-  document.getElementById(room).querySelector(".statusText").textContent = "offline";
+  if (room==0) {
+    document.getElementById('notifi_status').textContent = "offline";
+    document.getElementById('notifi_text').classList.remove('online');
   }
 })
-
-socket.on("newMess", function (room) {
-  if (document.getElementById(room)) {
-    document.getElementById(room).querySelector(".username").classList.add("newmess");
-    document.getElementById(room).querySelector(".status").classList.add("newmessStatus");
-    }
-})
-
-function clearNewMess(room) {
-  if (document.getElementById(room)) {
-    document.getElementById(room).querySelector(".username").classList.remove("newmess");
-    document.getElementById(room).querySelector(".status").classList.remove("newmessStatus");
-    }
-}
 
 // Send message on button click
 sendMessageBtn.addEventListener("click", function () {
@@ -174,9 +165,9 @@ socket.on("returnMessageRoom", function (messageArray) {
   renderAllMessage(messageArray);
 })
 
-socket.on("updateChat", function (id,type, data) {
-  console.log("Event socket updateChat with",type, data);
-  if (type === "INFO") {
+socket.on("updateChat", function (id,username, data) {
+  console.log("Event socket updateChat with",username, data);
+  if (username === "INFO") {
     console.log("Displaying announcement");
     chatDisplay.innerHTML += `<div class="announcement"><span>${data}</span></div>`;
   } else {
@@ -210,61 +201,6 @@ socket.on("updateChat", function (id,type, data) {
 
   chatDisplay.scrollTop = chatDisplay.scrollHeight;
 });
-
-
-socket.on("updateRooms", function (rooms, newRoom) {
-  console.log(rooms);
-  roomlist.innerHTML ="";
-  for (var index in rooms) {
-    roomlist.innerHTML +=
-    `<li class="rooms" id='${rooms[index].id}'>
-      <img src="${rooms[index].avatar ? rooms[index].avatar : 'https://static2.yan.vn/YanNews/2167221/202102/facebook-cap-nhat-avatar-doi-voi-tai-khoan-khong-su-dung-anh-dai-dien-e4abd14d.jpg'}" alt="">
-      <div>
-        <h2 class="username ${rooms[index].new_mess == 1? "newmess" :""}  ">${rooms[index].name}</h2>
-        <h3>
-          <span class="status orange  ${rooms[index].new_mess == 1? "newmessStatus" :""} "></span>
-          <span class="statusText"> offline </span>
-        </h3>
-      </div>
-    </li>`;
-    // originalRooms = rooms;
-    // ${rooms[index].newMess ? "newmess" : ''}">
-  }
-
-  originalRooms = rooms;
-
-  if (newRoom) {
-    document.getElementById(newRoom).classList.add("active_item");
-  } else {
-    document.getElementById(myUserId).classList.add("active_item");
-  }
-  bindFunction();
-  renderConnecting();
-});
-
-function changeRoom(room) {
-  console.log("Room change: ", currentRoom,'->',room, originalRooms[room]);
-  if (room != currentRoom) {
-    socket.emit("updateRooms", room, originalRooms[room].name);
-    document.getElementById(currentRoom).classList.remove("active_item");
-    currentRoom = room;
-    document.getElementById(currentRoom).classList.add("active_item");
-  }
-
-  clearNewMess(room);
-}
-
-function bindFunction() {
-  // onclick="changeRoom('${rooms[index].name}')"
-
-  [...document.getElementsByClassName("rooms")].forEach(element => {
-    element.addEventListener("click",()=>{
-      console.log(element.id);
-      changeRoom(element.id)
-    })
-  });
-}
-
 
 
 //Tai anh len:

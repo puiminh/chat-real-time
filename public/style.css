@@ -585,3 +585,22 @@ li h3{
 .newmessStatus {
   background-color:#6fbced!important;
 }
+
+
+/* CLIENT */
+
+#notifi {
+  position: absolute;
+}
+
+#notifi_text {
+  font-weight: 700;
+    font-family: monospace;
+    color: gray;
+}
+
+#notifi_text.online {
+  color: #6fbced;
+  background-color: inherit!important;
+}
+

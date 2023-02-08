@@ -1,9 +1,9 @@
 {
   "rooms": [
     {
-      "id": 0,
+      "newMess": true,
       "name": "admin",
-      "newMess": false
+      "id": 0
     },
     {
       "newMess": true,
@@ -16,7 +16,7 @@
       "id": 2
     },
     {
-      "newMess": true,
+      "newMess": false,
       "name": "Quân",
       "id": 3
     },
@@ -36,9 +36,9 @@
       "id": 6
     },
     {
+      "newMess": false,
       "name": "user1673015526",
-      "id": 7,
-      "newMess": false
+      "id": 7
     },
     {
       "name": "user1673017105",
@@ -119,6 +119,36 @@
       "name": "PHong moi",
       "id": 9999,
       "newMess": false
+    },
+    {
+      "name": null,
+      "newMess": false,
+      "id": 10000
+    },
+    {
+      "name": "Long",
+      "newMess": false,
+      "id": 10001
+    },
+    {
+      "name": "Minh",
+      "newMess": false,
+      "id": 10002
+    },
+    {
+      "name": null,
+      "newMess": false,
+      "id": 10003
+    },
+    {
+      "name": null,
+      "newMess": false,
+      "id": 10004
+    },
+    {
+      "name": null,
+      "newMess": false,
+      "id": 10005
     }
   ],
   "messages": [
@@ -447,6 +477,52 @@
       "message": "Xin chao phong 1",
       "id_room": "1",
       "id": 1673177572
+    },
+    {
+      "name": "admin",
+      "sender": 0,
+      "message": "Hello",
+      "id_room": 1,
+      "id": 1673177573
+    },
+    {
+      "name": "admin",
+      "sender": 0,
+      "message": "Helo",
+      "id_room": 2,
+      "id": 1673177574
+    },
+    {
+      "name": "Linh",
+      "sender": 2,
+      "message": "asdasd",
+      "id_room": 2,
+      "id": 1673177575
+    },
+    {
+      "name": "admin",
+      "sender": 0,
+      "message": "Hello",
+      "id_room": 0,
+      "id": 1673177576
+    },
+    {
+      "sender": 1,
+      "message": "Chao",
+      "id_room": 1,
+      "id": 1673177577
+    },
+    {
+      "sender": 1,
+      "message": "Chao ban",
+      "id_room": 1,
+      "id": 1673177578
+    },
+    {
+      "sender": 1,
+      "message": "Chao admin",
+      "id_room": 1,
+      "id": 1673177579
     }
   ],
   "roomstatuss": [

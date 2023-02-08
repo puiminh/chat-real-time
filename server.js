@@ -5,6 +5,7 @@ const bp = require('body-parser')
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
+const path = require('path');
 
 const axios = require("axios");
 const { response } = require("express");
@@ -13,30 +14,11 @@ app.use(bp.urlencoded({ extended: true }))
 app.use(express.static("public"));
 
 
-// JSON SERVER
-const jsonServer = require('json-server')
-const serverDB = jsonServer.create()
-const router = jsonServer.router('db.json')
-const middlewares = jsonServer.defaults();
-const db = require('./db.json');
+const baseURL = 'https://chatrealtimebackend-production.up.railway.app';
+const RoomURL = `${baseURL}/rooms`;
+const MessageURL = `${baseURL}/messages`;;
 
-
-serverDB.use(middlewares);
-serverDB.use(jsonServer.bodyParser);
-
-serverDB.use((req, res, next) => {  
-  res.header('Access-Control-Allow-Origin', 'https://5000-puiminh-chatrealtime-76faaa8tus5.ws-us81.gitpod.io')
-  res.header('Access-Control-Allow-Headers', '*')
-  // console.log(res);
-  next()
-})
-
-
-serverDB.use(router)
-
-serverDB.listen(3000, () => {
-  console.log('JSON Server is running')
-})
+const adminID = 0; //Mac dinh admin co id=0
 
 // Global variables to hold all name and rooms created
 var userInfos = {};
@@ -48,7 +30,7 @@ var rooms = [
 
 const setUpRoom = async () => {
   try {
-    const response = await axios.get('http://localhost:3000/rooms');
+    const response = await axios.get(RoomURL);
     console.log("room getting: ", response.data);
     return response.data
   } catch (error) {
@@ -70,8 +52,8 @@ const getAllRoom = async (params) => {
   console.log(query);
 
   try {
-    const response = await axios.get(`http://localhost:3000/rooms?${query}`);
-    console.log(`http://localhost:3000/rooms?${query}`);
+    const response = await axios.get(`${RoomURL}?${query}`);
+    console.log(`${RoomURL}?${query}`);
     return response.data
   } catch (error) {
     
@@ -80,15 +62,15 @@ const getAllRoom = async (params) => {
 
 const getRoom = async (id) => {
   try {
-    const response = await axios.get(`http://localhost:3000/rooms/${id}`);
-    console.log(`http://localhost:3000/rooms/${id}`);
+    const response = await axios.get(`${RoomURL}/${id}`);
+    console.log(`${RoomURL}/${id}`);
     return response.data
   } catch (error) {
     
   }
 }
 
-axios.get('http://localhost:3000/rooms')
+axios.get(RoomURL)
   .then(function (response) {
     rooms = response.data
   })
@@ -98,9 +80,9 @@ axios.get('http://localhost:3000/rooms')
 const createRoom = async (data) => {
   try {
     const response = await axios.post(
-      "http://localhost:3000/rooms", {
+      RoomURL, {
         name: data.name,
-        newMess: false,
+        newMess: 0,
       }
     )
     console.log(response.data)
@@ -111,11 +93,10 @@ const createRoom = async (data) => {
 }
 
 const sendMessage = async (data) => {
-  console.log("sending...",`http://localhost:3000/messages`,data);
+  console.log("sending...",MessageURL,data);
   try {
     const response = await axios.post(
-      `http://localhost:3000/messages`,{
-        name: data.name,
+      MessageURL,{
         sender: data.id_user,
         message: data.message,
         id_room: data.id_room
@@ -128,12 +109,11 @@ const sendMessage = async (data) => {
 }
 
 const roomNewMessStatus = async (data) => { //actually seen all message of a room
-  console.log("putting...",`http://localhost:3000/rooms/${data.id}`,data);
+  console.log("putting...",`${RoomURL}/${data.id}`,data);
   try {
     const response = await axios.put(
-      `http://localhost:3000/rooms/${data.id}`,{
-        newMess: data.status,
-        name: data.name
+      `${RoomURL}/${data.id}`,{
+        new_mess: data.status,
       }
     )
     console.log(response.data);    
@@ -145,7 +125,7 @@ const roomNewMessStatus = async (data) => { //actually seen all message of a roo
 
 const getAllMessage = async (id_room) => {
   try {
-    const response = await axios.get(`http://localhost:3000/messages?id_room=${id_room}`);
+    const response = await axios.get(`${MessageURL}?id_room=${id_room}`);
     return response.data
   } catch (error) {
     // Handle errors
@@ -154,7 +134,7 @@ const getAllMessage = async (id_room) => {
 
 const getAllMessageF = async (id_room) => {
   try {
-    const response = await axios.get(`http://localhost:3000/messages`);
+    const response = await axios.get(MessageURL);
     return response.data
   } catch (error) {
     // Handle errors
@@ -211,7 +191,7 @@ io.on("connection", function (socket) {
       //   .to("global")
       //   .emit("updateChat", -1,"INFO", userInfo.name + ` has joined  ${socket.currentRoom} room`); //event cho moi nguoi
 
-      if (socket.id_user != rooms[0].id) { //Not a admin
+      if (socket.id_user != adminID) { //Not a admin
         socket.emit("notAdminUser");
       } else { //La admin, gui danh sach nhung nguoi dang online (tim kiem socket)
       }
@@ -237,13 +217,13 @@ io.on("connection", function (socket) {
   })
 
   socket.on("sendMessage", function (data) {
-    sendMessage({id_room: parseInt(socket.currentRoom), id_user: socket.id_user, message: data, name: socket.name}).then((res)=>{
+    sendMessage({id_room: parseInt(socket.currentRoom), id_user: socket.id_user, message: data}).then((res)=>{
       console.log("res from socket emit part: ",res.status);
     });
-    io.sockets.to(socket.currentRoom+'').emit("updateChat", socket.id_user, socket.name, data);
+    io.sockets.to(socket.currentRoom+'').emit("updateChat", socket.id_user, "chat", data);
     socket.broadcast.emit("newMess",socket.currentRoom);
 
-    roomNewMessStatus({id: socket.currentRoom, status: true, name: socket.name})
+    roomNewMessStatus({id: socket.currentRoom, status: 1, name: socket.name})
 
     console.log("sendMessage socket: ",data," - ",socket.name,socket.id_user,": ",socket.currentRoom,"socket rooms: ",socket.rooms);
 
@@ -257,7 +237,7 @@ io.on("connection", function (socket) {
 
     //SEEN all the mess
 
-    roomNewMessStatus({id: room, status: false, name: name});
+    roomNewMessStatus({id: room, status: -1, name: name});
     
     // socket.emit("updateChat", -1,"INFO", "You have joined " + room + " room");
     getAllMessage(room).then((res)=>{
@@ -291,61 +271,8 @@ server.listen(5000, function () {
   console.log("Listening to port 5000.");
 });
 
-app.get('/rooms', (req, res) => {
-
-  let seen = req.query;
-  console.log(seen);
-  getAllRoom(seen).then((res2)=>{
-    res.send(res2)
-  })
-  // if (seen=='yes') {
-
-  //   let seenRoom = db.rooms.filter((e)=>e.newMess)    
-
-  //   console.log(seenRoom);
-  //   res.send(seenRoom)
-  // } else if (seen=='no') {
-  //   let seenRoom = db.rooms.filter((e)=>!e.newMess)
-  //   console.log(seenRoom);
-  //   res.send(seenRoom)
-  // } else {
-  //   res.send(db.rooms)
-  // }
-})
-
-app.get('/messages', (req, res) => {
-  getAllMessageF().then((res2)=>{
-    res.send(res2)
-  })
-})
-
-app.get('/rooms/:id', (req, res) => {
-
-  console.log(req.params['id']); 
-  let id = req.params['id'];
-  getRoom(id).then((res2)=>{
-    res.send(res2);
-  })
-})
-
-
-app.post('/rooms/:id', (req, res) => {
-  console.log(req.params['id']); 
-  let id_room = req.params['id'];
-  let id_user = req.body['id_user'];
-  let data = req.body['message'];
-  let name = req.body['name'];
-   sendMessage({id_room: id_room, id_user: id_user, message: data, name: name}).then((response)=>{
-    res.send(response);
-   })
-})
-
-app.post('/rooms', (req, res) => {
-  console.log(req.body);
-  let name = req.body.name;
-  createRoom({ name: name}).then((response)=>{
-    res.send(response);
-   })
+app.get('/client/*',(req, res) => {
+  res.sendFile(path.join(__dirname, 'public/client.html'));
 })
 
 // createRoom({ name: userInfo.name, id: userInfo.id_user })

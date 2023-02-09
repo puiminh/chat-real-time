@@ -163,7 +163,7 @@ button.enter_chat_btn {
 
 .right_sidebar {
   display: flex;
-  min-width: 10rem;
+  width: 20rem;
   flex-direction: column;
   align-items: center;
   /* background-color: tan; */
@@ -432,7 +432,6 @@ button:focus {
 .active_item {
   background-color: #f4f6fb;
   background-color: rgb(229, 242, 255);
-  padding: 0.75rem;
 }
 
 .room_input {
@@ -641,4 +640,81 @@ li h3{
 
 .new_mess_button_status.hidden {
   display: none;
+}
+
+/* Loader */
+
+#loader {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  width: 120px;
+  height: 120px;
+  margin: -76px 0 0 -76px;
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.search {
+  width: 100%;
+  position: relative;
+  display: flex;
+}
+
+.searchTerm {
+  width: 100%;
+  border: 3px solid #1ecdc5;
+  border-right: none;
+  padding: 5px;
+  height: 20px;
+  border-radius: 5px 0 0 5px;
+  outline: none;
+  color: black;
+}
+
+.searchTerm:focus{
+  color: #1ecdc5;
+}
+
+.searchButton {
+  width: 40px;
+  height: 36px;
+  border: 1px solid #00B4CC;
+  background: #1ecdc5;
+  text-align: center;
+  color: #fff;
+  border-radius: 0 5px 5px 0;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.active_rooms_list::-webkit-scrollbar-track
+{
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	background-color: #F5F5F5;
+}
+
+.active_rooms_list::-webkit-scrollbar
+{
+	width: 6px;
+	background-color: #F5F5F5;
+}
+
+.active_rooms_list::-webkit-scrollbar-thumb
+{
+	background-color: #00B4CC;
 }

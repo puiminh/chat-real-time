@@ -75,12 +75,12 @@ function renderAllMessage(messageArray) {
 //Send message func
 function sendMsg(msg) {
   if(msg) {
-    socket.emit("sendMessage", msg);
+    socket.emit("sendMessage", {message: msg, sender: myUserId});
     hasImg = false;
   } 
   
   if (message.value) {
-    socket.emit("sendMessage", message.value);
+    socket.emit("sendMessage", {message: message.value, sender: myUserId});
     message.value = "";
   }
 }
@@ -90,13 +90,10 @@ function sendMsg(msg) {
 // Prompt for username on connecting to server
 socket.on("connect", function () {
   console.log("An socket connect: ",socket.id_user);
-  socket.emit("createUser", {"id_user": 0, "name": "Admin"});
+  socket.emit("userConnect", 0);
+  socket.emit("adminConnect", 0);
   socket.emit("getMessageRoom", 0);
 });
-
-socket.on("notAdminUser", function (params) {
-  right_sidebar.style.display = "none";
-})
 
 socket.on("nowConnectingUser", function (ids) {
   console.log("List connecting: ",ids);
@@ -215,6 +212,23 @@ socket.on("updateChat", function (id,type, data) {
 socket.on("updateRooms", function (rooms, newRoom) {
   console.log(rooms);
   roomlist.innerHTML ="";
+
+  renderAllRoom(rooms)
+
+  originalRooms = rooms;
+
+  if (newRoom) {
+    document.getElementById(newRoom).classList.add("active_item");
+  } else {
+    document.getElementById(myUserId).classList.add("active_item");
+  }
+  bindFunction();
+  renderConnecting();
+  hideLoader();
+});
+
+function renderAllRoom(rooms) {
+  roomlist.innerHTML = '';
   for (var index in rooms) {
     roomlist.innerHTML +=
     `<li class="rooms" id='${rooms[index].id}'>
@@ -227,32 +241,36 @@ socket.on("updateRooms", function (rooms, newRoom) {
         </h3>
       </div>
     </li>`;
-    // originalRooms = rooms;
-    // ${rooms[index].newMess ? "newmess" : ''}">
   }
 
-  originalRooms = rooms;
-
-  if (newRoom) {
-    document.getElementById(newRoom).classList.add("active_item");
-  } else {
-    document.getElementById(myUserId).classList.add("active_item");
-  }
   bindFunction();
   renderConnecting();
-});
+}
 
 function changeRoom(room) {
-  console.log("Room change: ", currentRoom,'->',room, originalRooms[room]);
+  showLoader();
+  console.log("Room change: ", currentRoom,'->',room);
   if (room != currentRoom) {
-    socket.emit("updateRooms", room, originalRooms[room].name);
-    document.getElementById(currentRoom).classList.remove("active_item");
+    socket.emit("updateRooms", room);
+    showLoader();
+    document.getElementById(currentRoom)?.classList.remove("active_item");
     currentRoom = room;
     document.getElementById(currentRoom).classList.add("active_item");
   }
 
   clearNewMess(room);
 }
+
+function hideLoader() {
+  document.getElementById("loader").style.display = "none";
+  console.log("Done");
+}
+
+function showLoader() {
+  document.getElementById("loader").style.display = "div";
+  console.log("loading...");
+}
+
 
 function bindFunction() {
   // onclick="changeRoom('${rooms[index].name}')"
@@ -283,6 +301,15 @@ document.getElementById("file").addEventListener('change', (e) => {
 
     hasImg = true;
 })
+
+
+document.getElementById('search_input').addEventListener("keyup", (e)=> {
+  const inputValue = e.target.value;
+  const search_rooms = originalRooms.filter(room=> room.name.includes(inputValue))
+
+  console.log(search_rooms,"input: "+ inputValue);
+  renderAllRoom(search_rooms)
+});
 
 
 // ------------------- FIREBASE -------------------------//

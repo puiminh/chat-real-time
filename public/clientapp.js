@@ -7,7 +7,6 @@ var showButtonWrap = document.getElementById("show_button_wrap");
 var chat_app = document.getElementById("chat_app");
 var new_mess_button_status = document.getElementById("new_mess_button_status");
 
-
 var currentRoom = "0";
 var myUsername = "";
 var myUserId;
@@ -33,6 +32,8 @@ var listConnecting = [];
 // }
 
 // setUpRoom();
+
+myUserId = parseInt(window.location.pathname.split("/").pop()); 
 
 showButton.addEventListener("click", function (evt) {
   chat_app.classList.toggle("hidden");
@@ -77,15 +78,16 @@ function renderAllMessage(messageArray) {
 }
 
 
+
 //Send message func
 function sendMsg(msg) {
   if(msg) {
-    socket.emit("sendMessage", msg);
+    socket.emit("sendMessage", {message: msg, sender: myUserId});
     hasImg = false;
   } 
   
   if (message.value) {
-    socket.emit("sendMessage", message.value);
+    socket.emit("sendMessage", {message: message.value, sender: myUserId});
     message.value = "";
   }
 }
@@ -103,9 +105,12 @@ socket.on("connect", function () {
 
   // -------------- GET NAME FROM API --------------//
   //MOCKING...
-  myUsername = 'user'+Math.round(Date.now() / 1000);
+  // myUsername = 'user'+Math.round(Date.now() / 1000);
 
-  socket.emit("createUser", {"id_user": myUserId, "name": myUsername});
+  // socket.emit("createUser", {"id_user": myUserId, "name": myUsername});
+
+
+  socket.emit("userConnect", myUserId);
 
   socket.emit("getMessageRoom", myUserId);
 
@@ -177,14 +182,16 @@ socket.on("returnMessageRoom", function (messageArray) {
   renderAllMessage(messageArray);
 })
 
-socket.on("updateChat", function (id,username, data) {
-  console.log("Event socket updateChat with",username, data);
+socket.on("updateChat", function (id,type, data) {
+  console.log("Event socket updateChat with",type, data);
 
   // Noti
 
-  new_mess_button_status.classList.remove('hidden')  
+  if ( id != myUserId) {
+    new_mess_button_status.classList.remove('hidden')
+  }
 
-  if (username === "INFO") {
+  if (type === "INFO") {
     console.log("Displaying announcement");
     chatDisplay.innerHTML += `<div class="announcement"><span>${data}</span></div>`;
   } else {

@@ -25,6 +25,7 @@
 
   <body>
     <div class="app">
+      <div id="loader"></div>
       <div class="chat_app">
         <div class="chat_area">
           <div class="chat_bg">
@@ -38,7 +39,7 @@
                 placeholder="Enter message"
               />
               <label id="file-label" for="file">📷</label>
-              <input type="file" id="file" class="inputfile">
+              <input type="file" id="file" class="inputfile" accept="image/*">
               <button id="send_message_btn" class="send_message_btn" id="send">
                 SEND
               </button>
@@ -47,7 +48,14 @@
         </div>
 
         <div class="right_sidebar" id="right_sidebar">
-          <span class="room_label">User</span>
+          <div class="search" style="padding-top: 12px; padding-bottom: 12px;">
+            <input id="search_input" type="text" class="searchTerm" placeholder="Seach user">
+            <button type="submit" class="searchButton">
+              <svg style="padding-top: 5px" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 15.75l-2.489-2.489m0 0a3.375 3.375 0 10-4.773-4.773 3.375 3.375 0 004.774 4.774zM21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+           </button>
+         </div>
           <ul id="active_rooms_list" class="active_rooms_list">
           </ul>
         </div>

@@ -13,6 +13,11 @@ app.use(bp.json())
 app.use(bp.urlencoded({ extended: true }))
 app.use(express.static("public"));
 
+const getUserFromSystemAPI = 'https://api-admin-dype.onrender.com/api/user'
+var token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGx0Y3QuY29tIiwiaWF0IjoxNjc1OTEzOTEwLCJleHAiOjE2NzU5NTcxMTB9.-9QomL8YnHvhR30RnFGgYt40OkzRbzFwBRvFHIFvjCY'
+const config = {
+  headers: { Authorization: `Bearer ${token}` }
+};
 
 const baseURL = 'https://chatrealtimebackend-production.up.railway.app';
 const RoomURL = `${baseURL}/rooms`;
@@ -132,6 +137,16 @@ const getAllMessage = async (id_room) => {
   }
 }
 
+const getUserFromSystem = async (id_user) => {
+  try {
+    const response = await axios.get(`${getUserFromSystemAPI}/${id_user}`,config)
+    console.log(response.data)
+    return response.data;
+  } catch (error) {
+    console.error('Can\'t get data from api system', error.status);
+  }
+}
+
 const getAllMessageF = async (id_room) => {
   try {
     const response = await axios.get(MessageURL);
@@ -144,70 +159,65 @@ const getAllMessageF = async (id_room) => {
 io.on("connection", function (socket) {
   console.log(`User connected to server.`,socket.id);
     socket.on("createUser", function (userInfo) {
-    const found = rooms.findIndex((e)=>e.id == userInfo.id_user);
-    if (found != -1) { //OLD USER
 
-      console.log(`User ${userInfo.name} has been in data-chat with id: ${rooms[found].id}.`);
-
-      socket.name = rooms[found].name;
-      socket.id_user = rooms[found].id;
-      userInfos[rooms[found].id] = userInfo;
-      socket.currentRoom = rooms[found].id +'';
-
-      socket.join(rooms[found].id +'');
-
-      setUpRoom().then((res)=>{
-        rooms = res;
-        console.log("Room emit sending: ", rooms);
-        io.sockets.emit("updateRooms", rooms, null); //update list room (For app) //update list room (For app)
-      });
-
-
-
+    getUserFromSystem(userInfo.id_user).then((res)=> {
+      console.log(res);
       
-    } else { //NEW USER => CREATE
-      socket.name = userInfo.name;
-      socket.id_user = userInfo.id_user;
-      userInfos[userInfo.id_user] = userInfo;
-  
-      socket.currentRoom = userInfo.id_user+'';
-      socket.join(userInfo.id_user+'');
-  
-      console.log(`User ${userInfo.name} - ${userInfo.id_user} created on server successfully.`);
+      const found = rooms.findIndex((e)=>e.id == userInfo.id_user); //found
     
-      //make a room right way
+      if (found != -1) { //OLD USER
   
-      createRoom({ name: userInfo.name, id: userInfo.id_user }).then((res)=>{
-        rooms.push(res);
-        console.log("PUSH in to rooms array: ",res," Now:",rooms);
-        io.sockets.emit("updateRooms", rooms, null); //update list room (For app) //update list room (For app)
-      })
-    }
-
-      // socket.emit("updateChat",-1, "INFO", `You have joined ${socket.currentRoom} room`); //event cho ban than
-      socket.broadcast.emit("online",socket.currentRoom);
-
-      // socket.broadcast
-      //   .to("global")
-      //   .emit("updateChat", -1,"INFO", userInfo.name + ` has joined  ${socket.currentRoom} room`); //event cho moi nguoi
-
-      if (socket.id_user != adminID) { //Not a admin
-        socket.emit("notAdminUser");
-      } else { //La admin, gui danh sach nhung nguoi dang online (tim kiem socket)
-      }
+        console.log(`User ${userInfo.name} has been in data-chat with id: ${rooms[found].id}.`);
+  
+        socket.name = rooms[found].name;
+        socket.id_user = rooms[found].id;
+        userInfos[rooms[found].id] = userInfo;
+        socket.currentRoom = rooms[found].id +'';
+  
+        socket.join(rooms[found].id +'');
+  
+        setUpRoom().then((res)=>{
+          rooms = res;
+          io.sockets.emit("updateRooms", rooms, null); //update list room (For app) //update list room (For app)
+        });
+  
+      } else { //NEW USER => CREATE
+        socket.name = userInfo.name;
+        socket.id_user = userInfo.id_user;
+        userInfos[userInfo.id_user] = userInfo;
+    
+        socket.currentRoom = userInfo.id_user+'';
+        socket.join(userInfo.id_user+'');
+    
+        console.log(`User ${userInfo.name} - ${userInfo.id_user} created on server successfully.`);
       
-      io.fetchSockets().then((socketsConnect)=>{
-        let connectingSocket = socketsConnect.map((e)=>{
-          if (e.connected) {
-            return e.id_user
-          } else {
-            return false
-          }
+        //make a room right way
+    
+        createRoom({ name: userInfo.name, id: userInfo.id_user }).then((res)=>{
+          rooms.push(res);
+          console.log("PUSH in to rooms array: ",res," Now:",rooms);
+          io.sockets.emit("updateRooms", rooms, null); //update list room (For app) //update list room (For app)
         })
-        socket.emit("nowConnectingUser", connectingSocket);
-        socket.broadcast.emit("nowConnectingUser", connectingSocket);
-        console.log(connectingSocket);
-      });
+      }
+  
+        socket.broadcast.emit("online",socket.currentRoom);
+        io.fetchSockets().then((socketsConnect)=>{
+          let connectingSocket = socketsConnect.map((e)=>{
+            if (e.connected) {
+              return e.id_user
+            } else {
+              return false
+            }
+          })
+          socket.emit("nowConnectingUser", connectingSocket);
+          socket.broadcast.emit("nowConnectingUser", connectingSocket);
+          console.log(connectingSocket);
+        });
+      
+      
+    })  
+
+
   });
 
   socket.on("getMessageRoom", function (id_room) {

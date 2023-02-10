@@ -226,6 +226,11 @@ button.enter_chat_btn {
   padding: 10px;
 }
 
+.rooms {
+  width: 100%;
+  text-overflow: ellipsis;
+}
+
 .room_search_ul {
   position: absolute;
   background: white;

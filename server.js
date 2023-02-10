@@ -19,7 +19,7 @@ const config = {
   headers: { Authorization: `Bearer ${token}` }
 };
 
-const baseURL = 'https://chatrealtimebackend.up.railway.app/';
+const baseURL = 'https://chatrealtimebackend.up.railway.app';
 const RoomURL = `${baseURL}/rooms`;
 const MessageURL = `${baseURL}/messages`;;
 

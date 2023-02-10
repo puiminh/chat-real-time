@@ -7,8 +7,10 @@ var sendMessageBtn = document.getElementById("send_message_btn");
 
 var chatDisplay = document.getElementById("chat");
 var right_sidebar = document.getElementById("right_sidebar");
+var search_input = document.getElementById("search_input");
+var roomSearchlist = document.getElementById("search_room_output");
 
-var currentRoom = "0";
+var currentRoom = 0;
 var myUsername = "";
 var myUserId = 0;
 var hasImg = false;
@@ -231,6 +233,22 @@ function updateNewMess(room, status) {
   originalRooms[foundIndex].new_mess = status;
 }
 
+function renderRoomSearch(rooms) {
+  roomSearchlist.classList.remove('hidden')
+  roomSearchlist.innerHTML = '';
+
+  for (var index in rooms) {
+    roomSearchlist.innerHTML +=
+    `<li class="rooms room_search_li" data-value='${rooms[index].id}'>
+      <div>
+        <h2 class="username">${rooms[index].name}</h2>
+      </div>
+    </li>`;
+  }
+
+  bindFunctionForSearch();
+}
+
 function renderAllRoom(rooms) {
   roomlist.innerHTML = '';
   
@@ -262,7 +280,7 @@ function renderAllRoom(rooms) {
   return rooms;
 }
 
-function changeRoom(room) {
+function changeRoom(room, scroll = false) {
   showLoader();
   console.log("Room change: ", currentRoom,'->',room);
   if (room != currentRoom) {
@@ -273,12 +291,18 @@ function changeRoom(room) {
     document.getElementById(currentRoom).classList.add("active_item");
   }
 
+  if (scroll && document.getElementById(room)) {
+    roomlist.scrollTop = document.getElementById(room).offsetTop - 200;
+  }
+
+  
+
   clearNewMess(room);
 }
 
 function hideLoader() {
   document.getElementById("loader").style.display = "none";
-  console.log("Done");
+  console.log("hide loader...");
 }
 
 function showLoader() {
@@ -294,6 +318,19 @@ function bindFunction() {
     element.addEventListener("click",()=>{
       console.log(element.id);
       changeRoom(element.id)
+    })
+  });
+}
+
+function bindFunctionForSearch() {
+  // onclick="changeRoom('${rooms[index].name}')"
+
+  [...document.getElementsByClassName("room_search_li")].forEach(element => {
+    element.addEventListener("click",()=>{
+      console.log(element.getAttribute("data-value"));
+      changeRoom(element.getAttribute("data-value"), true);
+      roomSearchlist.classList.add("hidden");
+      search_input.value = '';
     })
   });
 }
@@ -318,13 +355,29 @@ document.getElementById("file").addEventListener('change', (e) => {
 })
 
 
-document.getElementById('search_input').addEventListener("keyup", (e)=> {
+search_input.addEventListener("keyup", (e)=> {
   const inputValue = e.target.value;
-  const search_rooms = originalRooms.filter(room=> room.name.includes(inputValue))
+  const search_rooms = originalRooms.filter(room=> room.name.toLowerCase().includes(inputValue.toLowerCase()))
 
   console.log(search_rooms,"input: "+ inputValue);
-  renderAllRoom(search_rooms)
+  renderRoomSearch(search_rooms)
 });
+
+sync_button.addEventListener("click", (e)=> {
+
+  if (confirm("Thao tác này sẽ thực hiện đồng bộ dữ liệu người dùng từ hệ thống và sẽ mất khoảng thời gian khá lâu, bạn tiếp tục chứ?") == true) {
+    socket.emit("syncData");
+    showLoader();
+    roomlist.innerHTML = '';
+  }
+
+})
+
+socket.on("syncDataDone", (e)=> {
+  console.log("syncDataDone");
+  hideLoader();
+  alert("Syncdata done");
+})
 
 
 // ------------------- FIREBASE -------------------------//

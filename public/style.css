@@ -226,6 +226,24 @@ button.enter_chat_btn {
   padding: 10px;
 }
 
+.room_search_ul {
+  position: absolute;
+  background: white;
+  border: solid 1px#1ecdc5;
+  top: 50px;
+  width: 85%;
+  max-height: 300px;
+}
+
+.room_search_ul.hidden {
+  display: none;
+}
+
+.room_search_li {
+  padding-left: 15px;
+  border-bottom: solid 2px #1ecdc5;
+}
+
 .room_card {
   display: flex;
   flex-direction: row;
@@ -690,7 +708,7 @@ li h3{
   color: #1ecdc5;
 }
 
-.searchButton {
+.sync_button {
   width: 40px;
   height: 36px;
   border: 1px solid #00B4CC;

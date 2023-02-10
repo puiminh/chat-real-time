@@ -149,7 +149,7 @@ const getAllUserFromSystem = async () => {
 }
 
 const asyncData = async () => {
-  getAllUserFromSystem().then(async (res)=> {
+  await getAllUserFromSystem().then(async (res)=> {
     try {
       const response = await axios.post(`${baseURL}/syncData`,res
       )
@@ -231,6 +231,21 @@ io.on("connection", function (socket) {
 
 
   });
+
+  socket.on("syncData", function() {
+
+    asyncData().then((res)=> {
+      axios.get(RoomURL)
+      .then(function (response) {
+        rooms = response.data
+        socket.emit("syncDataDone");
+        socket.emit("updateRooms", rooms, null)
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    })  
+  })
 
   socket.on("adminConnect", function() {
     setUpRoom().then((res)=>{

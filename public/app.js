@@ -219,9 +219,9 @@ socket.on("updateRooms", function (rooms, newRoom) {
   originalRooms = renderAllRoom(rooms)
 
   if (newRoom) {
-    document.getElementById(newRoom).classList.add("active_item");
+    document.getElementById(newRoom)?.classList.add("active_item");
   } else {
-    document.getElementById(myUserId).classList.add("active_item");
+    document.getElementById(myUserId)?.classList.add("active_item");
   }
   bindFunction();
   renderConnecting();

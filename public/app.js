@@ -108,7 +108,7 @@ function renderConnecting() {
       document.getElementById(id+'').querySelector(".status").classList.add("online");
       document.getElementById(id+'').querySelector(".statusText").textContent = "online";
     } else {
-      console.error("Something wrong with online status");
+      console.error("Something wrong with online status", id);
     }
   }); 
 }
@@ -130,15 +130,16 @@ socket.on("offline", function (room) {
 socket.on("newMess", function (room) {
   if (document.getElementById(room)) {
     document.getElementById(room).querySelector(".username").classList.add("newmess");
-    document.getElementById(room).querySelector(".status").classList.add("newmessStatus");
     }
+  updateNewMess(room, 1)  
+  renderAllRoom(originalRooms);
 })
 
 function clearNewMess(room) {
   if (document.getElementById(room)) {
     document.getElementById(room).querySelector(".username").classList.remove("newmess");
-    document.getElementById(room).querySelector(".status").classList.remove("newmessStatus");
     }
+  updateNewMess(room, -1)
 }
 
 // Send message on button click
@@ -213,9 +214,7 @@ socket.on("updateRooms", function (rooms, newRoom) {
   console.log(rooms);
   roomlist.innerHTML ="";
 
-  renderAllRoom(rooms)
-
-  originalRooms = rooms;
+  originalRooms = renderAllRoom(rooms)
 
   if (newRoom) {
     document.getElementById(newRoom).classList.add("active_item");
@@ -227,8 +226,22 @@ socket.on("updateRooms", function (rooms, newRoom) {
   hideLoader();
 });
 
+function updateNewMess(room, status) {
+  const foundIndex = originalRooms.findIndex(x => x.id == room);
+  originalRooms[foundIndex].new_mess = status;
+}
+
 function renderAllRoom(rooms) {
   roomlist.innerHTML = '';
+  
+  rooms.sort((a,b)=> {
+    // 1 - (1) = 0 -> not change ok
+    // -1 - (-1) = 0 -> not change ok
+    // -1 - (1) = -2 -> a, b -> - -2 = 2 -> b, a 
+    // 1 - (-1) = 2 -> b, a  -> - 2 = -2 -> a, b
+    return b.new_mess - a.new_mess    
+  })
+
   for (var index in rooms) {
     roomlist.innerHTML +=
     `<li class="rooms" id='${rooms[index].id}'>
@@ -236,7 +249,7 @@ function renderAllRoom(rooms) {
       <div>
         <h2 class="username ${rooms[index].new_mess == 1? "newmess" :""}  ">${rooms[index].name}</h2>
         <h3>
-          <span class="status orange  ${rooms[index].new_mess == 1? "newmessStatus" :""} "></span>
+          <span class="status offline  ${rooms[index].new_mess == 1? "newmessStatus" :""} "></span>
           <span class="statusText"> offline </span>
         </h3>
       </div>
@@ -245,6 +258,8 @@ function renderAllRoom(rooms) {
 
   bindFunction();
   renderConnecting();
+
+  return rooms;
 }
 
 function changeRoom(room) {

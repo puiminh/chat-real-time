@@ -183,9 +183,11 @@ function asyncDataExcute() {
 }
 
 function getAllRoomsExcute() {
+  console.log("Get all room...", RoomURL);
   axios.get(RoomURL)
     .then(function (response) {
       rooms = response.data
+      console.log(rooms);
     })
     .catch(function (error) {
       console.log(error);

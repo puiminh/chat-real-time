@@ -567,8 +567,8 @@ li h3{
 .green{
 	background-color: #58b666;
 }
-.orange{
-	background-color:#ff725d;
+.offline{
+	background-color:#a5a5a5;
 }
 .blue{
 	background-color:#6fbced;
@@ -578,7 +578,7 @@ li h3{
 
 .newmess {
   font-weight: 900;
-  color: #6fbced;
+  color: #ff725d;
 }
 
 .newmessStatus {
@@ -702,19 +702,19 @@ li h3{
   font-size: 20px;
 }
 
-.active_rooms_list::-webkit-scrollbar-track
+::-webkit-scrollbar-track
 {
 	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
 	background-color: #F5F5F5;
 }
 
-.active_rooms_list::-webkit-scrollbar
+::-webkit-scrollbar
 {
 	width: 6px;
 	background-color: #F5F5F5;
 }
 
-.active_rooms_list::-webkit-scrollbar-thumb
+::-webkit-scrollbar-thumb
 {
 	background-color: #00B4CC;
 }

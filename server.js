@@ -42,52 +42,6 @@ const setUpRoom = async () => {
   }
 }
 
-serialize = function(obj) {
-  var str = [];
-  for (var p in obj)
-    if (obj.hasOwnProperty(p)) {
-      str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
-    }
-  return str.join("&");
-}
-
-const getAllRoom = async (params) => {
-  let query = serialize(params)
-  console.log(query);
-
-  try {
-    const response = await axios.get(`${RoomURL}?${query}`);
-    console.log(`${RoomURL}?${query}`);
-    return response.data
-  } catch (error) {
-    
-  }
-}
-
-const getRoom = async (id) => {
-  try {
-    const response = await axios.get(`${RoomURL}/${id}`);
-    console.log(`${RoomURL}/${id}`);
-    return response.data
-  } catch (error) {
-    
-  }
-}
-
-const createRoom = async (data) => {
-  try {
-    const response = await axios.post(
-      RoomURL, {
-        name: data.name,
-        newMess: 0,
-      }
-    )
-    console.log(response.data)
-    return response.data
-  } catch (error) {
-    console.error(error)
-  }
-}
 
 const sendMessage = async (data) => {
   console.log("sending...",MessageURL,data);
@@ -195,6 +149,8 @@ function getAllRoomsExcute() {
 }
 
 getAllRoomsExcute();
+
+/* ------------- SOCKET---------------- */
 
 io.on("connection", function (socket) {
   console.log(`User connected to server.`,socket.id);

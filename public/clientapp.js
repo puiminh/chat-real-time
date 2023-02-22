@@ -5,7 +5,7 @@ var chatDisplay = document.getElementById("chat");
 var showButton = document.getElementById("show_button");
 var showButtonWrap = document.getElementById("show_button_wrap");
 var chat_app = document.getElementById("chat_app");
-var new_mess_button_status = document.getElementById("new_mess_button_status");
+// var new_mess_button_status = document.getElementById("new_mess_button_status");
 
 var currentRoom = "0";
 var myUsername = "";
@@ -37,7 +37,7 @@ myUserId = parseInt(window.location.pathname.split("/").pop());
 
 showButton.addEventListener("click", function (evt) {
   chat_app.classList.toggle("hidden");
-  new_mess_button_status.classList.add("hidden");
+  // new_mess_button_status.classList.add("hidden");
 })
 
 //Render message
@@ -187,9 +187,9 @@ socket.on("updateChat", function (id,type, data) {
 
   // Noti
 
-  if ( id != myUserId) {
-    new_mess_button_status.classList.remove('hidden')
-  }
+  // if ( id != myUserId) {
+  //   new_mess_button_status.classList.remove('hidden')
+  // }
 
   if (type === "INFO") {
     console.log("Displaying announcement");

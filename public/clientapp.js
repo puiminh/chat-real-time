@@ -2,8 +2,8 @@ var socket = io();
 var message = document.getElementById("messageInput");
 var sendMessageBtn = document.getElementById("send_message_btn");
 var chatDisplay = document.getElementById("chat");
-var showButton = document.getElementById("show_button");
-var showButtonWrap = document.getElementById("show_button_wrap");
+// var showButton = document.getElementById("show_button");
+// var showButtonWrap = document.getElementById("show_button_wrap");
 var chat_app = document.getElementById("chat_app");
 // var new_mess_button_status = document.getElementById("new_mess_button_status");
 
@@ -35,10 +35,10 @@ var listConnecting = [];
 
 myUserId = parseInt(window.location.pathname.split("/").pop()); 
 
-showButton.addEventListener("click", function (evt) {
-  chat_app.classList.toggle("hidden");
-  // new_mess_button_status.classList.add("hidden");
-})
+// showButton.addEventListener("click", function (evt) {
+//   chat_app.classList.toggle("hidden");
+//   // new_mess_button_status.classList.add("hidden");
+// })
 
 //Render message
 
